@@ -1,0 +1,82 @@
+{
+  "developers": [
+    {
+      "id": 1,
+      "name": {
+        "en": "Tatiana Culeac"
+      },
+      "photo": "",
+      "LinkedIn": "",
+      "GitHub": "",
+      "role": {
+        "en": "Team Lead (Frontend)"
+      }
+    },
+    {
+      "id": 2,
+      "name": {
+        "en": "Alexandra"
+
+      },
+      "photo": "",
+      "LinkedIn": "",
+      "GitHub": "",
+      "role": {
+        "en": "Scrum Master"
+
+      }
+    },
+    {
+      "id": 3,
+      "name": {
+        "en": "Abiatar"
+
+      },
+      "photo": "",
+      "LinkedIn": "",
+      "GitHub": "",
+      "role": {
+        "en": "Team Lead (Backend)"
+      }
+    },
+     {
+      "id": 4,
+      "name": {
+        "en": "Dragostin"
+
+      },
+      "photo": "",
+      "LinkedIn": "",
+      "GitHub": "",
+      "role": {
+        "en": "Developer"
+      }
+    },
+     {
+      "id": 5,
+      "name": {
+        "en": "Renata"
+
+      },
+      "photo": "",
+      "LinkedIn": "",
+      "GitHub": "",
+      "role": {
+        "en": "Developer"
+      }
+    },
+ {
+      "id":6,
+      "name": {
+        "en": "Elisa"
+
+      },
+      "photo": "",
+      "LinkedIn": "",
+      "GitHub": "",
+      "role": {
+        "en": "Developer"
+      }
+    }
+  ]
+}
