@@ -14,16 +14,22 @@ import {
 import ListIcon from '@mui/icons-material/List';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { deleteBoard, updateBoard } from '../../redux/board/boardSlice';
+import {
+  deleteBoard,
+  updateBoard,
+  setActiveBoardId,
+} from '../../redux/board/boardSlice';
+import { selectAllBoards } from '../../redux/board/boardSelectors';
 
 const Sidebar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const boards = useSelector(state => state.boards.items);
+  const boards = useSelector(selectAllBoards);
   const activeBoardId = useSelector(state => state.boards.activeBoardId);
 
   const handleBoardClick = boardId => {
-    dispatch({ type: 'boards/setActiveBoard', payload: boardId });
+    // Set the active board ID and navigate to the board's page
+    dispatch(setActiveBoardId(boardId));
     navigate(`/boards/${boardId}`);
   };
 
