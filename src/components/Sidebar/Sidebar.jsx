@@ -14,6 +14,7 @@ import {
 import ListIcon from '@mui/icons-material/List';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { deleteBoard, updateBoard } from '../../redux/board/boardSlice';
 
 const Sidebar = () => {
   const dispatch = useDispatch();
@@ -28,11 +29,12 @@ const Sidebar = () => {
 
   // Handlers for edit and delete actions
   const handleUpdateBoard = boardId => {
-    alert(`Edit board ${boardId}`);
+    // Exemplu rapid: update doar titlul (poți deschide un dialog pentru editare reală)
+    dispatch(updateBoard({ _id: boardId, title: 'Edited title' }));
   };
 
   const handleDeleteBoard = boardId => {
-    alert(`Delete board ${boardId}`);
+    dispatch(deleteBoard(boardId));
   };
 
   const isBoardActive = boardId => activeBoardId === boardId;
