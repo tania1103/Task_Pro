@@ -14,10 +14,20 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  TextField
+  TextField,
 } from '@mui/material';
-import { Add as AddIcon, Dashboard as DashboardIcon } from '@mui/icons-material';
-import { fetchBoards, createBoard, selectAllBoards, selectBoardsLoading } from '../../features/boards/boardsSlice';
+import {
+  Add as AddIcon,
+  Dashboard as DashboardIcon,
+} from '@mui/icons-material';
+import {
+  fetchBoards,
+  createBoard,
+  selectAllBoards,
+  selectBoardsLoading,
+  deleteBoard,
+  updateBoard,
+} from '../../features/boards/boardsSlice';
 import { MainLayout } from '../layouts';
 
 /**
@@ -46,7 +56,7 @@ const DashboardPage = () => {
    * Navigate to a specific board
    * @param {string} boardId - ID of the board to navigate to
    */
-  const handleBoardClick = (boardId) => {
+  const handleBoardClick = boardId => {
     navigate(`/boards/${boardId}`);
   };
 
@@ -88,10 +98,12 @@ const DashboardPage = () => {
     }
 
     // Create the board
-    const resultAction = await dispatch(createBoard({
-      title: newBoardTitle.trim(),
-      icon: newBoardIcon.trim() || undefined
-    }));
+    const resultAction = await dispatch(
+      createBoard({
+        title: newBoardTitle.trim(),
+        icon: newBoardIcon.trim() || undefined,
+      })
+    );
 
     // Handle successful creation
     if (createBoard.fulfilled.match(resultAction)) {
@@ -101,16 +113,57 @@ const DashboardPage = () => {
     }
   };
 
+  /**
+   * Handle board deletion
+   * @param {string} boardId - ID of the board to delete
+   * */
+
+  const handleDeleteBoard = async boardId => {
+    const resultAction = await dispatch(deleteBoard(boardId));
+    if (deleteBoard.fulfilled.match(resultAction)) {
+      // Poți afișa o notificare de succes
+      console.log('Board deleted!');
+    } else {
+      // Poți afișa o eroare
+      console.error('Failed to delete board:', resultAction.error);
+    }
+  };
+
+  /**
+   * Update an existing board
+   * @param {string} boardId - ID of the board to update
+   * @param {Object} updatedData - Data to update the board with
+   * */
+  const handleUpdateBoard = async (boardId, updatedData) => {
+    const resultAction = await dispatch(
+      updateBoard({ _id: boardId, ...updatedData })
+    );
+
+    if (updateBoard.fulfilled.match(resultAction)) {
+      // Optionally handle success, e.g., show a notification
+      console.log('Board updated successfully');
+    } else {
+      // Handle error
+      console.error('Failed to update board:', resultAction.error);
+    }
+  };
+
   return (
     <MainLayout title="Dashboard">
       <Box sx={{ p: 3 }}>
-        <Box sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          mb: 3
-        }}>
-          <Typography variant="h4" component="h1" sx={{ display: 'flex', alignItems: 'center' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: 3,
+          }}
+        >
+          <Typography
+            variant="h4"
+            component="h1"
+            sx={{ display: 'flex', alignItems: 'center' }}
+          >
             <DashboardIcon sx={{ mr: 1 }} /> My Boards
           </Typography>
 
@@ -137,7 +190,7 @@ const DashboardPage = () => {
               justifyContent: 'center',
               mt: 10,
               p: 3,
-              textAlign: 'center'
+              textAlign: 'center',
             }}
           >
             <Typography variant="h6" gutterBottom>
@@ -157,7 +210,7 @@ const DashboardPage = () => {
           </Box>
         ) : (
           <Grid container spacing={3}>
-            {boards.map((board) => (
+            {boards.map(board => (
               <Grid item xs={12} sm={6} md={4} lg={3} key={board._id}>
                 <Card
                   elevation={2}
@@ -167,8 +220,8 @@ const DashboardPage = () => {
                     transition: 'transform 0.2s, box-shadow 0.2s',
                     '&:hover': {
                       transform: 'translateY(-4px)',
-                      boxShadow: 8
-                    }
+                      boxShadow: 8,
+                    },
                   }}
                 >
                   <CardActionArea
@@ -176,11 +229,13 @@ const DashboardPage = () => {
                     onClick={() => handleBoardClick(board._id)}
                   >
                     <CardContent>
-                      <Box sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        mb: 1
-                      }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          mb: 1,
+                        }}
+                      >
                         {board.icon && (
                           <Typography variant="h5" sx={{ mr: 1 }}>
                             {board.icon}
@@ -194,7 +249,8 @@ const DashboardPage = () => {
                         {board.columns?.length || 0} columns
                       </Typography>
                       <Typography variant="caption" color="textSecondary">
-                        Created: {new Date(board.createdAt).toLocaleDateString()}
+                        Created:{' '}
+                        {new Date(board.createdAt).toLocaleDateString()}
                       </Typography>
                     </CardContent>
                   </CardActionArea>
@@ -205,7 +261,12 @@ const DashboardPage = () => {
         )}
 
         {/* Create Board Dialog */}
-        <Dialog open={isCreateModalOpen} onClose={handleCloseCreateModal} fullWidth maxWidth="sm">
+        <Dialog
+          open={isCreateModalOpen}
+          onClose={handleCloseCreateModal}
+          fullWidth
+          maxWidth="sm"
+        >
           <DialogTitle>Create New Board</DialogTitle>
           <DialogContent>
             <TextField
@@ -215,7 +276,7 @@ const DashboardPage = () => {
               type="text"
               fullWidth
               value={newBoardTitle}
-              onChange={(e) => {
+              onChange={e => {
                 setNewBoardTitle(e.target.value);
                 if (e.target.value.trim()) {
                   setTitleError('');
@@ -231,15 +292,17 @@ const DashboardPage = () => {
               type="text"
               fullWidth
               value={newBoardIcon}
-              onChange={(e) => setNewBoardIcon(e.target.value)}
+              onChange={e => setNewBoardIcon(e.target.value)}
               helperText="Optional: Add an emoji to represent your board"
             />
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleCloseCreateModal}>
-              Cancel
-            </Button>
-            <Button onClick={handleCreateBoard} color="primary" variant="contained">
+            <Button onClick={handleCloseCreateModal}>Cancel</Button>
+            <Button
+              onClick={handleCreateBoard}
+              color="primary"
+              variant="contained"
+            >
               Create
             </Button>
           </DialogActions>
