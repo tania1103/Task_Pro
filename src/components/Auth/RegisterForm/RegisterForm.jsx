@@ -6,7 +6,7 @@ import { register } from '../../../redux/auth/authOperations';
 import { useAuth } from 'hooks/useAuth';
 import { registerSchema } from 'schemas';
 import { PROGRESS_BAR_COLORS } from 'constants';
-// import SmallLoader from 'components/Loader/SmallLoader/SmallLoader';
+// import SmallLoader from 'components/Loader/SmallLoader';
 import {
   Background,
   FormWrap,
@@ -18,7 +18,7 @@ import {
   ErrorPara,
   PassInputWrap,
   HideBtn,
-} from '../RegisterForm.styled'; // presupun că ai separat stilurile
+} from './RegisterForm.styled'; // presupun că ai separat stilurile
 import Eye from 'components/Icons/Eye';
 import EyeCrossed from 'components/Icons/EyeCrossed';
 

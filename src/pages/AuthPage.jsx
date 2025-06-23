@@ -1,5 +1,6 @@
 import LoginForm from 'components/Auth/LoginForm/LoginForm';
 import RegisterForm from 'components/Auth/RegisterForm/RegisterForm';
+
 import { useParams } from 'react-router-dom';
 
 const AuthPage = () => {
