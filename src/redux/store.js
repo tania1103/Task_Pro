@@ -1,11 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './auth/authSlice';
-import boardReducer from './board/boardSlice';
+import { boardsReducer } from './board/boardSlice';
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
-    boards: boardReducer,
+    boards: boardsReducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
