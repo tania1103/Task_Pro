@@ -1,12 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useFormik } from 'formik';
+import { useNavigate } from 'react-router-dom';
 import PasswordStrengthBar from 'react-password-strength-bar';
+
 import { register } from '../../../redux/auth/authOperations';
 import { useAuth } from 'hooks/useAuth';
 import { registerSchema } from 'schemas';
 import { PROGRESS_BAR_COLORS } from 'constants';
 // import SmallLoader from 'components/Loader/SmallLoader';
+
 import {
   Background,
   FormWrap,
@@ -18,16 +21,17 @@ import {
   ErrorPara,
   PassInputWrap,
   HideBtn,
-} from './RegisterForm.styled'; // presupun că ai separat stilurile
+} from './RegisterForm.styled';
+
 import Eye from 'components/Icons/Eye';
 import EyeCrossed from 'components/Icons/EyeCrossed';
 
 const RegisterForm = () => {
   const [visible, setVisible] = useState(false);
   const [pwd, setPwd] = useState('');
-
   const dispatch = useDispatch();
-  const { isLoading } = useAuth();
+  const navigate = useNavigate();
+  const { isLoading, isLoggedIn } = useAuth();
 
   const onSubmit = (values, actions) => {
     dispatch(
@@ -51,6 +55,13 @@ const RegisterForm = () => {
       onSubmit,
     });
 
+  // ✅ Redirecționează după înregistrare cu succes
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate('/dashboard'); // 🔁 Schimbă cu ruta reală, ex: '/home'
+    }
+  }, [isLoggedIn, navigate]);
+
   return (
     <Background>
       <FormWrap>
@@ -66,6 +77,7 @@ const RegisterForm = () => {
         </AuthList>
 
         <FormUi onSubmit={handleSubmit} autoComplete="off">
+          {/* Name */}
           <label htmlFor="name">
             <Input
               id="name"
@@ -85,6 +97,7 @@ const RegisterForm = () => {
             )}
           </label>
 
+          {/* Email */}
           <label htmlFor="email">
             <Input
               id="email"
@@ -100,12 +113,12 @@ const RegisterForm = () => {
               required
               autoComplete="username"
             />
-
             {errors.email && touched.email && (
               <ErrorPara id="email-error">{errors.email}</ErrorPara>
             )}
           </label>
 
+          {/* Password + Visibility Toggle */}
           <label htmlFor="password">
             <PassInputWrap>
               <Input
@@ -125,7 +138,6 @@ const RegisterForm = () => {
                 required
                 autoComplete="new-password"
               />
-
               <HideBtn
                 type="button"
                 onClick={() => setVisible(!visible)}
@@ -153,6 +165,7 @@ const RegisterForm = () => {
             )}
           </label>
 
+          {/* Password Strength Meter */}
           {pwd && (
             <PasswordStrengthBar
               password={pwd}
@@ -161,6 +174,7 @@ const RegisterForm = () => {
             />
           )}
 
+          {/* Submit Button */}
           <SubmitBtn type="submit" disabled={isLoading}>
             Register
           </SubmitBtn>
