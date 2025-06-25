@@ -1,173 +1,156 @@
-/**
- * Column component for displaying a column with cards
- */
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import { useSelector, useDispatch } from 'react-redux';
+import { useState, useEffect, useMemo } from 'react';
+import { useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+import { useDroppable } from '@dnd-kit/core';
 import {
-  Box,
-  Typography,
-  IconButton,
-  Paper,
-  Menu,
-  MenuItem,
-  ListItemIcon
-} from '@mui/material';
+  SortableContext,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { deleteColumn } from '../../../redux/columns/columnsOperations';
+import Pencil from 'components/Icons/Pencil';
+import Trash from 'components/Icons/Trash';
+import ColumnModal from 'components/Modals/ColumnModal';
+import CardModal from 'components/Modals/CardModal';
+import Plus from 'components/Icons/Plus';
+import DeleteModal from 'components/Modals/DeleteModal/DeleteModal';
+import TaskCard from '../TaskCard';
+import { EmptyMsg } from '../Dashboard.styled';
 import {
-  MoreVert as MoreVertIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Add as AddIcon
-} from '@mui/icons-material';
-import { Droppable } from 'react-beautiful-dnd';
-import Card from '../../cards/Card';
+  AddButton,
+  ButtonsList,
+  CardsList,
+  ColumnButton,
+  ColumnTitleWrap,
+  ColumnWrap,
+  IconWrap,
+} from './Column.styled';
 
-const Column = ({ column }) => {
+const Column = ({ allColumns, column }) => {
+  const [isEditColumnModalOpen, setIsEditColumnModalOpen] = useState(false);
+  const [isAddCardModalOpen, setIsAddCardModalOpen] = useState(false);
+  const [isDeleteModalShown, setIsDeleteModalShown] = useState(false);
+  const [showEmptyMsg, setShowEmptyMsg] = useState(false);
+
+  const cardsId = useMemo(
+    () => column?.cards?.map(card => card?._id) ?? [],
+    [column?.cards]
+  );
+
+  useEffect(() => {
+    const columns = allColumns?.filter(column => column?.cards?.length !== 0);
+
+    if (!columns?.length) {
+      setShowEmptyMsg(true);
+    } else {
+      setShowEmptyMsg(false);
+    }
+  }, [setShowEmptyMsg, allColumns]);
+
+  const { setNodeRef, isOver } = useDroppable({
+    id: column._id,
+    data: {
+      column,
+    },
+  });
+
   const dispatch = useDispatch();
-  const cards = useSelector(state => state.cards.items.filter(card => card.columnId === column.id));
+  const { t } = useTranslation();
 
-  // Menu state
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
-
-  const handleMenuClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleEditColumn = () => {
-    handleMenuClose();
-    // Open edit column modal
-    console.log('Edit column clicked');
-  };
-
-  const handleDeleteColumn = () => {
-    handleMenuClose();
-    // Open confirm delete modal
-    console.log('Delete column clicked');
-  };
-
-  const handleAddCard = () => {
-    // Open add card modal
-    console.log('Add card clicked');
+  const handleColumnDelete = () => {
+    dispatch(deleteColumn(column._id));
+    setIsDeleteModalShown(false);
   };
 
   return (
-    <Paper
-      elevation={1}
-      sx={{
-        width: 350,
-        minWidth: 350,
-        maxWidth: 350,
-        height: '100%',
-        borderRadius: 2,
-        bgcolor: 'custom.columnBackground',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        p: 2,
-        borderBottom: '1px solid',
-        borderColor: 'divider'
-      }}>
-        <Typography variant="h6" sx={{ fontWeight: 600 }}>
-          {column.title}
-        </Typography>
-
-        <IconButton
-          size="small"
-          onClick={handleMenuClick}
-          aria-label="column menu"
-          aria-controls={open ? 'column-menu' : undefined}
-          aria-expanded={open ? 'true' : undefined}
-          aria-haspopup="true"
-        >
-          <MoreVertIcon />
-        </IconButton>
-
-        <Menu
-          id="column-menu"
-          anchorEl={anchorEl}
-          open={open}
-          onClose={handleMenuClose}
-        >
-          <MenuItem onClick={handleEditColumn}>
-            <ListItemIcon>
-              <EditIcon fontSize="small" />
-            </ListItemIcon>
-            Edit Column
-          </MenuItem>
-          <MenuItem onClick={handleDeleteColumn}>
-            <ListItemIcon>
-              <DeleteIcon fontSize="small" />
-            </ListItemIcon>
-            Delete Column
-          </MenuItem>
-        </Menu>
-      </Box>
-
-      <Droppable droppableId={column.id}>
-        {(provided, snapshot) => (
-          <Box
-            sx={{
-              flex: 1,
-              overflowY: 'auto',
-              p: 1,
-              bgcolor: snapshot.isDraggingOver ? 'action.hover' : 'inherit',
-              transition: 'background-color 0.2s ease',
-            }}
-            ref={provided.innerRef}
-            {...provided.droppableProps}
+    <>
+      <ColumnWrap>
+        <ColumnTitleWrap>
+          <h3>{column.title}</h3>
+          <ButtonsList>
+            <li>
+              <ColumnButton
+                type="button"
+                aria-label="Edit column title"
+                onClick={() => setIsEditColumnModalOpen(true)}
+              >
+                <Pencil
+                  width={16}
+                  height={16}
+                  strokeColor={'var(--plus-icon-bg)'}
+                />
+              </ColumnButton>
+            </li>
+            <li>
+              <ColumnButton
+                id="column-delete"
+                type="button"
+                aria-label="Delete column"
+                onClick={() => setIsDeleteModalShown(true)}
+              >
+                <Trash
+                  width={16}
+                  height={16}
+                  strokeColor={'var(--plus-icon-bg)'}
+                />
+              </ColumnButton>
+            </li>
+          </ButtonsList>
+        </ColumnTitleWrap>
+        {showEmptyMsg ? (
+          <EmptyMsg>{t('cards.empty')}</EmptyMsg>
+        ) : (
+          <SortableContext
+            id={column._id}
+            items={cardsId}
+            strategy={verticalListSortingStrategy}
           >
-            {cards.map((card, index) => (
-              <Card key={card.id} card={card} index={index} />
-            ))}
-            {provided.placeholder}
-          </Box>
+            <CardsList ref={setNodeRef} $isOver={isOver}>
+              {column.cards &&
+                column.cards.map(card => (
+                  <li key={card._id}>
+                    <TaskCard
+                      allColumns={allColumns}
+                      columnId={column._id}
+                      card={card}
+                    />
+                  </li>
+                ))}
+            </CardsList>
+          </SortableContext>
         )}
-      </Droppable>
+        <AddButton type="button" onClick={() => setIsAddCardModalOpen(true)}>
+          <IconWrap>
+            <Plus width={14} height={14} />
+          </IconWrap>
+          {t('cards.addButton')}
+        </AddButton>
+      </ColumnWrap>
 
-      <Box sx={{
-        p: 1,
-        borderTop: '1px solid',
-        borderColor: 'divider'
-      }}>
-        <Box
-          onClick={handleAddCard}
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            py: 1,
-            bgcolor: 'action.hover',
-            borderRadius: 1,
-            cursor: 'pointer',
-            '&:hover': {
-              bgcolor: 'action.selected',
-            }
-          }}
-        >
-          <AddIcon fontSize="small" sx={{ mr: 1 }} />
-          <Typography variant="body2">Add Card</Typography>
-        </Box>
-      </Box>
-    </Paper>
+      {isEditColumnModalOpen && (
+        <ColumnModal
+          variant="edit"
+          closeModal={() => setIsEditColumnModalOpen(false)}
+          columnId={column._id}
+          columnName={column.title}
+        />
+      )}
+
+      {isAddCardModalOpen && (
+        <CardModal
+          columnId={column._id}
+          variant="add"
+          closeCardModal={() => setIsAddCardModalOpen(false)}
+        />
+      )}
+
+      {isDeleteModalShown && (
+        <DeleteModal
+          onClose={() => setIsDeleteModalShown(false)}
+          onConfirm={handleColumnDelete}
+        />
+      )}
+    </>
   );
-};
-
-Column.propTypes = {
-  column: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-    boardId: PropTypes.string.isRequired,
-  }).isRequired,
 };
 
 export default Column;

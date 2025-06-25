@@ -1,189 +1,229 @@
-/**
- * Card component for displaying a task card
- */
-import React from 'react';
-import PropTypes from 'prop-types';
+import { useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+import i18next from 'i18next';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { deleteCard, moveCard } from '../../../redux/cards/cardsOperations';
 import {
-  Box,
-  Typography,
-  Paper,
-  Chip,
-  IconButton,
-  Tooltip
-} from '@mui/material';
+  formatDate,
+  makeValidDate,
+  handleTextOverflow,
+  determineDeadline,
+  determineLabelColor,
+  changePriorityLang,
+  isTheDateLessThanNow,
+} from 'helpers';
+import Status from 'components/Icons/Status';
+import Pencil from 'components/Icons/Pencil';
+import Trash from 'components/Icons/Trash';
+import Bell from 'components/Icons/Bell';
+import DeleteModal from 'components/Modals/DeleteModal/DeleteModal';
+import MovePopUp from 'components/Dashboard/MovePopUp/MovePopUp';
 import {
-  AccessTime as AccessTimeIcon,
-  Edit as EditIcon
-} from '@mui/icons-material';
-import { Draggable } from 'react-beautiful-dnd';
+  CardItem,
+  CardTitle,
+  CardDescr,
+  InfoWrap,
+  Deadline,
+  Priority,
+  BtnsList,
+  DeadlineModal,
+  CardActionButton,
+} from './TaskCard.styled';
+import CardModal from 'components/Modals/CardModal/CardModal';
 
-// Helper to get priority color
-const getPriorityColor = (priority, theme) => {
-  switch (priority) {
-    case 'high':
-      return theme.palette.custom.highPriority;
-    case 'medium':
-      return theme.palette.custom.mediumPriority;
-    case 'low':
-      return theme.palette.custom.lowPriority;
-    default:
-      return theme.palette.custom.lowPriority;
-  }
-};
+const TaskCard = ({ allColumns, columnId, card }) => {
+  const [showFullText, setShowFullText] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isEditCardModalOpen, setIsEditCardModalOpen] = useState(false);
 
-// Format date to display
-const formatDate = (dateString) => {
-  const options = { month: 'short', day: 'numeric' };
-  return new Date(dateString).toLocaleDateString('en-US', options);
-};
+  const {
+    setNodeRef,
+    attributes,
+    listeners,
+    transform,
+    transition,
+    isDragging,
+    isSorting,
+  } = useSortable({
+    id: card._id,
+    data: {
+      card,
+      type: 'Task',
+    },
+    transition: {
+      duration: 300,
+      easing: 'var(--dnd-transition)',
+    },
+  });
 
-const Card = ({ card, index }) => {
+  const style = {
+    transition,
+    transform: CSS.Transform.toString(transform),
+  };
+
+  const aboveCardStyle = {
+    ...style,
+    opacity: isSorting ? '30%' : '100%',
+  };
+
+  const { t } = useTranslation();
   const dispatch = useDispatch();
 
-  const handleEditCard = (e) => {
-    e.stopPropagation();
-    // Open edit card modal
-    console.log('Edit card clicked', card.id);
+  const handleClick = () => {
+    setShowFullText(!showFullText);
   };
 
-  const handleCardClick = () => {
-    // Open card details modal
-    console.log('Card clicked', card.id);
+  const deleteOneCard = cardId => {
+    dispatch(deleteCard({ cardId, columnId }));
   };
+
+  const moveCardToAnotherColumn = newColumn => {
+    dispatch(moveCard({ cardId: card._id, newColumn, oldColumn: columnId }));
+  };
+
+  if (isDragging) {
+    return (
+      <CardItem
+        ref={setNodeRef}
+        {...listeners}
+        {...attributes}
+        style={aboveCardStyle}
+      />
+    );
+  }
 
   return (
-    <Draggable draggableId={card.id} index={index}>
-      {(provided, snapshot) => (
-        <Paper
-          ref={provided.innerRef}
-          {...provided.draggableProps}
-          {...provided.dragHandleProps}
-          elevation={snapshot.isDragging ? 6 : 1}
-          sx={{
-            p: 2,
-            mb: 1,
-            borderRadius: 2,
-            cursor: 'pointer',
-            position: 'relative',
-            bgcolor: 'custom.cardBackground',
-            '&:hover .edit-button': {
-              opacity: 1,
-            },
-            transition: theme => theme.transitions.create(['box-shadow']),
-          }}
-          onClick={handleCardClick}
-        >
-          <Box sx={{
-            position: 'absolute',
-            top: 8,
-            right: 8,
-            opacity: 0,
-            transition: theme => theme.transitions.create(['opacity']),
-          }} className="edit-button">
-            <Tooltip title="Edit Card">
-              <IconButton size="small" onClick={handleEditCard}>
-                <EditIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          </Box>
+    <>
+      <CardItem
+        ref={setNodeRef}
+        {...listeners}
+        {...attributes}
+        style={aboveCardStyle}
+        $label={determineLabelColor(card.priority)}
+      >
+        <CardTitle>{card.title}</CardTitle>
+        <CardDescr onClick={handleClick}>
+          {showFullText
+            ? card.description
+            : handleTextOverflow(card.description)}
+        </CardDescr>
+        <hr />
 
-          <Box sx={{ mb: 1 }}>
-            <Typography
-              variant="subtitle1"
-              sx={{
-                fontWeight: 600,
-                mb: 1,
-                pr: 4, // Space for edit button
-              }}
-            >
-              {card.title}
-            </Typography>
+        <div>
+          <InfoWrap>
+            <div>
+              <h5>{t('cards.priority')}</h5>
+              <Priority $label={determineLabelColor(card.priority)}>
+                {i18next.language === 'en'
+                  ? card.priority
+                  : changePriorityLang(card.priority)}
+              </Priority>
+            </div>
 
-            {card.description && (
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{
-                  mb: 2,
-                  display: '-webkit-box',
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden',
+            <div>
+              <h5>{t('cards.deadline')}</h5>
+              <Deadline
+                $isDeadlinePassed={isTheDateLessThanNow(
+                  new Date(card.deadline)
+                )}
+              >
+                {formatDate(makeValidDate(card.deadline))}
+              </Deadline>
+            </div>
+          </InfoWrap>
+
+          <BtnsList>
+            {determineDeadline(card.deadline) && (
+              <li>
+                <CardActionButton
+                  id="deadline-bell"
+                  type="button"
+                  aria-label="Deadline is today"
+                  onClick={e => (e.target.style.animation = 'none')}
+                >
+                  <Bell
+                    width={16}
+                    height={16}
+                    strokeColor={'var(--icon-stroke-color)'}
+                  />
+                </CardActionButton>
+
+                <DeadlineModal id="deadline-modal">
+                  <p>{t('cards.deadlineToday')}</p>
+                </DeadlineModal>
+              </li>
+            )}
+            {allColumns.length >= 2 && (
+              <li>
+                <CardActionButton
+                  id="move-card"
+                  type="button"
+                  aria-label="Move card"
+                >
+                  <Status
+                    width={16}
+                    height={16}
+                    strokeColor={'var(--icon-stroke-color)'}
+                  />
+                </CardActionButton>
+                <MovePopUp
+                  allColumns={allColumns}
+                  columnId={columnId}
+                  moveCard={moveCardToAnotherColumn}
+                />
+              </li>
+            )}
+            <li>
+              <CardActionButton
+                type="button"
+                aria-label="Edit card"
+                onClick={() => {
+                  setIsEditCardModalOpen(true);
                 }}
               >
-                {card.description}
-              </Typography>
-            )}
-          </Box>
-
-          <Box sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-          }}>
-            <Chip
-              label={card.priority.charAt(0).toUpperCase() + card.priority.slice(1)}
-              size="small"
-              sx={{
-                height: 22,
-                fontSize: '0.75rem',
-                bgcolor: theme => getPriorityColor(card.priority, theme),
-                color: '#fff',
-              }}
-            />
-
-            {card.deadline && (
-              <Box sx={{
-                display: 'flex',
-                alignItems: 'center',
-                color: 'text.secondary',
-                fontSize: '0.75rem',
-              }}>
-                <AccessTimeIcon fontSize="inherit" sx={{ mr: 0.5 }} />
-                {formatDate(card.deadline)}
-              </Box>
-            )}
-          </Box>
-
-          {card.labels && card.labels.length > 0 && (
-            <Box sx={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 0.5,
-              mt: 1
-            }}>
-              {card.labels.map((label) => (
-                <Chip
-                  key={label}
-                  label={label}
-                  size="small"
-                  sx={{
-                    height: 20,
-                    fontSize: '0.65rem',
-                    bgcolor: 'action.selected',
-                  }}
+                <Pencil
+                  width={16}
+                  height={16}
+                  strokeColor={'var(--icon-stroke-color)'}
                 />
-              ))}
-            </Box>
-          )}
-        </Paper>
+              </CardActionButton>
+            </li>
+            <li>
+              <CardActionButton
+                type="button"
+                aria-label="Delete card"
+                onClick={() => setIsDeleteModalOpen(true)}
+              >
+                <Trash
+                  width={16}
+                  height={16}
+                  strokeColor={'var(--icon-stroke-color)'}
+                />
+              </CardActionButton>
+            </li>
+          </BtnsList>
+        </div>
+      </CardItem>
+
+      {isEditCardModalOpen && (
+        <CardModal
+          activeCard={card}
+          columnId={columnId}
+          variant="edit"
+          closeCardModal={() => setIsEditCardModalOpen(false)}
+        />
       )}
-    </Draggable>
+
+      {isDeleteModalOpen && (
+        <DeleteModal
+          onClose={() => setIsDeleteModalOpen(false)}
+          onConfirm={() => deleteOneCard(card._id)}
+        />
+      )}
+    </>
   );
 };
 
-Card.propTypes = {
-  card: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-    description: PropTypes.string,
-    priority: PropTypes.oneOf(['low', 'medium', 'high']).isRequired,
-    deadline: PropTypes.string,
-    columnId: PropTypes.string.isRequired,
-    labels: PropTypes.arrayOf(PropTypes.string),
-  }).isRequired,
-  index: PropTypes.number.isRequired,
-};
-
-export default Card;
+export default TaskCard;
