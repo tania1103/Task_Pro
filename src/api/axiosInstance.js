@@ -1,7 +1,6 @@
 import axios from 'axios';
 import ENDPOINTS from './endpoints';
-import axios from 'axios';
-import ENDPOINTS from './endpoints';
+
 
 const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
