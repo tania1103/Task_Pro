@@ -1,97 +1,78 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { deleteBoard } from '../../../redux/board/boardOperations';
 import { ICONS_ARRAY } from 'constants';
 import sprite from 'assets/images/icons/icons-sprite.svg';
-import { ReactComponent as PlusIcon } from 'assets/images/icons/plus.svg';
-import { ReactComponent as LightningIcon } from 'assets/images/icons/lightning.svg';
-import { ReactComponent as LogoutIcon } from 'assets/images/icons/log-out.svg';
-
+import Pencil from 'components/Icons/Pencil';
+import Trash from 'components/Icons/Trash';
 import {
-  Container,
-  Content,
-  Footer,
-  Logo,
-  ExtraLink,
-  StatsLink,
-  LightningBox,
-  BoardsWrap,
-  MyBoard,
-  AddBtn,
-  CreateText,
-  CreateBox,
-  DevsBtn,
-  BoardContainer,
-  BoardLink,
-  HelpContainer,
-  HelpText,
-  HelpSpan,
-  HelpBtn,
-  LogoutBtn,
-  LogoutText,
-  BottomContainer,
-} from './SidebarContent.styled';
+  BoardBoxInfo,
+  ChangeBox,
+  ChangeIcons,
+  NameBox,
+} from './AddedBoard.styled';
+import DeleteModal from 'components/Modals/DeleteModal/DeleteModal';
 
-const mockBoards = [
-  { _id: '1', title: 'Project Alpha', icon_id: 0 },
-  { _id: '2', title: 'Marketing Team', icon_id: 3 },
-  { _id: '3', title: 'Design UI', icon_id: 5 },
-];
+const AddedBoard = ({ board, openEditModal }) => {
+  const boardIcon = ICONS_ARRAY[board.icon_id];
+  const [isDeleteModalShown, setIsDeleteModalShown] = useState(false);
 
-const SidebarContent = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const handleBoardDelete = () => {
+    dispatch(deleteBoard(board._id)).then(action => {
+      if (action.type === 'boards/deleteBoard/fulfilled') navigate('/');
+    });
+
+    setIsDeleteModalShown(false);
+  };
+
   return (
-    <Container>
-      <Content>
-        <Logo>
-          <LightningBox>
-            <LightningIcon width={16} height={16} />
-          </LightningBox>
-          Task Manager
-        </Logo>
+    <>
+      <BoardBoxInfo>
+        <NameBox>
+          <svg stroke={'var(--sidebar-icon-color)'} width={16} height={16}>
+            <use href={`${sprite}#${boardIcon.name}`}></use>
+          </svg>
 
-        <BoardsWrap>
-          <MyBoard>My Boards</MyBoard>
-          <StatsLink to="/statistics">Statistics</StatsLink>
-        </BoardsWrap>
+          <p>{board.title}</p>
+        </NameBox>
+        <ChangeBox id="change-container">
+          <ChangeIcons
+            type="button"
+            aria-label="Edit board"
+            onClick={openEditModal}
+          >
+            <Pencil
+              width={16}
+              height={16}
+              strokeColor={'var(--sidebar-change-color'}
+            />
+          </ChangeIcons>
+          <ChangeIcons
+            type="button"
+            aria-label="Delete board"
+            onClick={() => setIsDeleteModalShown(true)}
+          >
+            <Trash
+              width={16}
+              height={16}
+              strokeColor={'var(--sidebar-change-color'}
+            />
+          </ChangeIcons>
+        </ChangeBox>
+      </BoardBoxInfo>
 
-        <BoardContainer>
-          {mockBoards.map(board => (
-            <BoardLink key={board._id} to={`/board/${board._id}`}>
-              <svg width={16} height={16} stroke="currentColor">
-                <use href={`${sprite}#${ICONS_ARRAY[board.icon_id].name}`} />
-              </svg>
-              <span style={{ marginLeft: 10 }}>{board.title}</span>
-            </BoardLink>
-          ))}
-        </BoardContainer>
-
-        <CreateBox>
-          <CreateText>Create new board</CreateText>
-          <AddBtn>
-            <PlusIcon width={16} height={16} stroke="currentColor" />
-          </AddBtn>
-        </CreateBox>
-
-        <HelpContainer>
-          <HelpText>
-            Need help? <HelpSpan>Check our guides</HelpSpan>
-          </HelpText>
-          <HelpBtn>
-            <LightningIcon width={14} height={14} />
-            Learn More
-          </HelpBtn>
-        </HelpContainer>
-      </Content>
-
-      <Footer>
-        <BottomContainer>
-          <LogoutBtn>
-            <LogoutIcon width={16} height={16} />
-            <LogoutText>Log Out</LogoutText>
-          </LogoutBtn>
-        </BottomContainer>
-
-        <DevsBtn>Developed by You</DevsBtn>
-      </Footer>
-    </Container>
+      {isDeleteModalShown && (
+        <DeleteModal
+          onClose={() => setIsDeleteModalShown(false)}
+          onConfirm={handleBoardDelete}
+        />
+      )}
+    </>
   );
 };
 
-export default SidebarContent;
+export default AddedBoard;

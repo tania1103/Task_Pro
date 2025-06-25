@@ -1,18 +1,27 @@
-import { Suspense } from 'react';
+import { useState } from 'react';
+import Sidebar from 'components/Sidebar';
+import SidebarMenu from 'components/Sidebar/SidebarMenu';
+import Header from 'components/Header';
 import { Outlet } from 'react-router-dom';
-import { Header, BurgerBtn } from './SharedLayout.styled';
-import Burger from 'components/Icons/Burger';
 
-const SharedLayout = ({ openMenu }) => {
+const SharedLayout = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const openMenu = () => setIsMenuOpen(true);
+
+  const closeMenu = () => setIsMenuOpen(false);
+
   return (
-    <Header>
-      <BurgerBtn type="button" onClick={openMenu}>
-        <Burger width={24} height={24} />
-      </BurgerBtn>
-      <Suspense fallback="Loading">
+    <>
+      <Header openMenu={openMenu} />
+
+      <Sidebar />
+      <SidebarMenu isMenuOpen={isMenuOpen} closeMenu={closeMenu} />
+
+      <main>
         <Outlet />
-      </Suspense>
-    </Header>
+      </main>
+    </>
   );
 };
 

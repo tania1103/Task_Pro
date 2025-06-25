@@ -1,7 +1,7 @@
 import Burger from 'components/Icons/Burger';
 import ThemeSelect from 'components/ThemeSelect/ThemeSelect';
 import Profile from 'components/Profile/Profile';
-// import { TempForLanguages } from 'components/TempForLanguages/TempForLanguages';
+import { TempForLanguages } from 'components/TempForLanguages/TempForLanguages';
 import { HeaderSection, BurgerBtn, HeaderUserWrap } from './Header.styled';
 
 const Header = ({ openMenu }) => {
@@ -12,7 +12,7 @@ const Header = ({ openMenu }) => {
       </BurgerBtn>
 
       <HeaderUserWrap>
-        {/* <TempForLanguages /> */}
+        <TempForLanguages />
         <ThemeSelect />
         <Profile />
       </HeaderUserWrap>
