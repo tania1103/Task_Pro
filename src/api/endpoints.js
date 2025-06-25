@@ -1,9 +1,9 @@
 const ENDPOINTS = Object.freeze({
   auth: {
-    register: 'auth/register',
-    login: 'auth/login',
-    logout: 'auth/logout',
-    refreshToken: 'auth/refresh',
+    register: 'api/auth/register',
+    login: 'api/auth/login',
+    logout: 'api/auth/logout',
+    refreshToken: 'api/auth/refresh',
   },
   users: {
     current: 'users/current',

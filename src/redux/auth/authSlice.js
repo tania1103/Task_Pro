@@ -6,19 +6,16 @@ import {
   refreshUser,
   editUser,
 } from './authOperations';
-import {
-  handleRegLogFulfilled,
-  handlePending,
-  handleRejected,
-} from '../helpers';
+import { handlePending, handleRejected } from '../helpers';
 
 const initialState = {
-  user: { name: null, email: null },
-  token: null,
-  refreshToken: null,
+  user: null,
+  token: localStorage.getItem('accessToken') || null,
+  refreshToken: localStorage.getItem('refreshToken') || null,
   isLoggedIn: false,
-  isRefreshing: false,
   isLoading: false,
+  isRefreshing: false,
+  error: null,
 };
 
 export const authSlice = createSlice({
@@ -26,6 +23,7 @@ export const authSlice = createSlice({
   initialState,
   extraReducers: builder => {
     builder
+      // 🔁 Pending
       .addCase(register.pending, handlePending)
       .addCase(logIn.pending, handlePending)
       .addCase(logOut.pending, handlePending)
@@ -34,8 +32,34 @@ export const authSlice = createSlice({
         state.isLoading = true;
         state.isRefreshing = true;
       })
-      .addCase(register.fulfilled, handleRegLogFulfilled)
-      .addCase(logIn.fulfilled, handleRegLogFulfilled)
+
+      // ✅ Register
+      .addCase(register.fulfilled, (state, { payload }) => {
+        console.log('✅ REGISTER payload:', payload);
+
+        if (!payload?.tokenAccess) return;
+
+        state.user = payload;
+        state.token = payload.tokenAccess;
+        state.refreshToken = payload.refreshToken || null;
+        state.isLoggedIn = true;
+        state.isLoading = false;
+      })
+
+      // ✅ Login
+      .addCase(logIn.fulfilled, (state, { payload }) => {
+        console.log('✅ LOGIN payload:', payload);
+
+        if (!payload?.tokenAccess) return;
+
+        state.user = payload;
+        state.token = payload.tokenAccess;
+        state.refreshToken = payload.refreshToken || null;
+        state.isLoggedIn = true;
+        state.isLoading = false;
+      })
+
+      // ✅ Logout
       .addCase(logOut.fulfilled, state => {
         state.user = { name: null, email: null };
         state.token = null;
@@ -43,28 +67,36 @@ export const authSlice = createSlice({
         state.isLoggedIn = false;
         state.isLoading = false;
       })
+
+      // ✅ Refresh
       .addCase(refreshUser.fulfilled, (state, { payload }) => {
+        if (!payload?.tokenAccess) return;
+
         state.user = { ...payload };
         state.token = payload.tokenAccess;
         state.isLoggedIn = true;
         state.isRefreshing = false;
         state.isLoading = false;
       })
+
+      // ✅ Edit user
       .addCase(editUser.fulfilled, (state, { payload }) => {
         state.user = { ...state.user, ...payload.user };
         state.user.avatar_url = payload.user.avatar_url;
         state.isLoggedIn = true;
         state.isLoading = false;
       })
+
+      // ❌ Rejected
       .addCase(register.rejected, handleRejected)
       .addCase(logIn.rejected, handleRejected)
       .addCase(logOut.rejected, handleRejected)
+      .addCase(editUser.rejected, handleRejected)
       .addCase(refreshUser.rejected, (state, { payload }) => {
         state.isRefreshing = false;
         state.isLoading = false;
         state.error = payload;
-      })
-      .addCase(editUser.rejected, handleRejected);
+      });
   },
 });
 

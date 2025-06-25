@@ -21,18 +21,25 @@ export const register = createAsyncThunk(
         ENDPOINTS.auth.register,
         credentials
       );
-      setAuthorizationHeader(data.user.tokenAccess);
 
-      return data;
+      const token = data.user.tokenAccess;
+
+      setAuthorizationHeader(token);
+      localStorage.setItem('accessToken', token);
+
+      return data.user; // ⚠️ important: doar user-ul
     } catch (error) {
-      toast.error(error.response.data.message, TOASTER_CONFIG);
+      toast.error(
+        error.response?.data?.message || 'Registration failed',
+        TOASTER_CONFIG
+      );
       return thunkAPI.rejectWithValue(error.message);
     }
   }
 );
 
 export const logIn = createAsyncThunk(
-  'auth/login',
+  'auth/logIn',
   async (credentials, thunkAPI) => {
     try {
       const { data } = await axiosInstance.post(
@@ -40,11 +47,17 @@ export const logIn = createAsyncThunk(
         credentials
       );
 
-      setAuthorizationHeader(data.user.tokenAccess);
+      const token = data.user.tokenAccess;
 
-      return data;
+      setAuthorizationHeader(token);
+      localStorage.setItem('accessToken', token);
+
+      return data.user; // ⚠️ important: doar user-ul
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(
+        error.response?.data?.message || 'Login failed',
+        TOASTER_CONFIG
+      );
       return thunkAPI.rejectWithValue(error.message);
     }
   }
@@ -63,10 +76,13 @@ export const logOut = createAsyncThunk('auth/logout', async (_, thunkAPI) => {
       refreshToken,
     });
 
-    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('accessToken');
     unsetAuthorizationHeader();
   } catch (error) {
-    toast.error(error.response.data.message, TOASTER_CONFIG);
+    toast.error(
+      error.response?.data?.message || 'Logout failed',
+      TOASTER_CONFIG
+    );
     return thunkAPI.rejectWithValue(error.message);
   }
 });
@@ -76,10 +92,9 @@ export const refreshUser = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const { data } = await axiosInstance.get(ENDPOINTS.users.current);
-
       return data.user;
-    } catch ({ message }) {
-      return thunkAPI.rejectWithValue(message);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
     }
   }
 );
@@ -89,6 +104,7 @@ export const editUser = createAsyncThunk(
   async (dataUser, thunkAPI) => {
     const formData = new FormData();
     const { avatar_url, name, email, password } = dataUser;
+
     formData.append('avatar_url', avatar_url);
     formData.append('name', name);
     formData.append('email', email);
@@ -103,6 +119,10 @@ export const editUser = createAsyncThunk(
 
       return data;
     } catch (error) {
+      toast.error(
+        error.response?.data?.message || 'Update failed',
+        TOASTER_CONFIG
+      );
       return thunkAPI.rejectWithValue(error.message);
     }
   }
