@@ -1,60 +1,6 @@
-/**
- * Main App component
- */
-import React, { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from 'react-router-dom';
-import { CssBaseline, ThemeProvider } from '@mui/material';
-
-// Theme imports
-import {
-  lightTheme,
-  darkTheme,
-  violetTheme,
-  THEMES,
-  useThemeManager,
-} from './theme';
-
-// Layout components
-import AppLayout from './components/common/AppLayout';
-import AuthLayout from './components/auth/AuthLayout';
-
-// Auth pages
-import LoginPage from './pages/auth/Login';
-import RegisterPage from './pages/auth/Register';
-
-// App pages
-import DashboardPage from './pages/Dashboard';
-import BoardPage from './pages/Board';
-import ProfilePage from './pages/Profile';
-import HelpPage from './pages/Help';
-
-// Routes and guards
-import PrivateRoute from './routes/PrivateRoute';
-import PublicRoute from './routes/PublicRoute';
-
-// Redux actions
-import { refreshToken } from './features/authSlice';
-import { fetchBoards } from './features/boardsSlice';
-
-// Get theme based on name
-const getTheme = themeName => {
-  switch (themeName) {
-    case THEMES.LIGHT:
-      return lightTheme;
-    case THEMES.VIOLET:
-      return violetTheme;
-    case THEMES.DARK:
-      return darkTheme;
-    default:
-      return lightTheme;
-  }
-};
+import { Toaster } from 'react-hot-toast';
+import GlobalStyles from 'assets/styles/GlobalStyles';
+import MainPage from 'pages/MainPage';
 
 const App = () => {
   const dispatch = useDispatch();
@@ -107,5 +53,4 @@ const App = () => {
     </ThemeProvider>
   );
 };
-
 export default App;
