@@ -8,6 +8,7 @@ import { PrivateRoute } from '../../routes/PrivateRoute';
 import { PublicRoute } from '../../routes/PublicRoute';
 import SharedLayout from 'layouts/SharedLayout';
 import Loader from 'components/Loader/Loader';
+import { getTheme } from '../../redux/theme/themeOperation';
 
 const WelcomePage = lazy(() => import('pages/WelcomePage'));
 const AuthPage = lazy(() => import('pages/AuthPage'));
@@ -22,7 +23,17 @@ const App = () => {
   const { isRefreshing } = useAuth();
 
   useEffect(() => {
-    dispatch(refreshUser());
+    const accessToken = localStorage.getItem('accessToken');
+    const refreshToken = localStorage.getItem('refreshToken');
+
+    // ✅ Apelăm refreshUser DOAR dacă avem ambele tokenuri
+    if (accessToken && refreshToken) {
+      dispatch(refreshUser()).then(() => {
+        dispatch(getTheme());
+      });
+    } else {
+      console.warn('🔁 Skip refreshUser: lipsesc tokenurile din localStorage');
+    }
   }, [dispatch]);
 
   return isRefreshing ? (
@@ -30,7 +41,6 @@ const App = () => {
   ) : (
     <>
       <Toaster position="top-center" />
-
       <Suspense fallback={<Loader />}>
         <Routes>
           <Route
@@ -51,7 +61,7 @@ const App = () => {
               element={
                 <PrivateRoute
                   component={<HomePage />}
-                  redirectTo={'/auth/login'}
+                  redirectTo="/auth/login"
                 />
               }
             />
@@ -60,7 +70,7 @@ const App = () => {
               element={
                 <PrivateRoute
                   component={<ScreensPage />}
-                  redirectTo={'/auth/login'}
+                  redirectTo="/auth/login"
                 />
               }
             />
@@ -69,7 +79,7 @@ const App = () => {
               element={
                 <PrivateRoute
                   component={<StatsPage />}
-                  redirectTo={'/auth/login'}
+                  redirectTo="/auth/login"
                 />
               }
             />
@@ -78,7 +88,7 @@ const App = () => {
               element={
                 <PrivateRoute
                   component={<SchedulePage />}
-                  redirectTo={'/auth/login'}
+                  redirectTo="/auth/login"
                 />
               }
             />

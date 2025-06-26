@@ -13,18 +13,22 @@ const themeSlice = createSlice({
     builder
       .addCase(getTheme.pending, handlePending)
       .addCase(updateTheme.pending, handlePending)
+
+      // payload este stringul cu tema
       .addCase(getTheme.fulfilled, (state, { payload }) => {
-        state.theme = payload.theme;
+        state.theme = payload;
         state.isLoading = false;
         state.error = null;
       })
       .addCase(updateTheme.fulfilled, (state, { payload }) => {
+        state.theme = payload;
         state.isLoading = false;
         state.error = null;
-        state.theme = payload.theme;
       })
+
       .addCase(getTheme.rejected, handleRejected)
       .addCase(updateTheme.rejected, handleRejected);
   },
 });
+
 export const themeReducer = themeSlice.reducer;
