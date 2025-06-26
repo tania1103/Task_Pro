@@ -25,8 +25,6 @@ import {
   createBoard,
   selectAllBoards,
   selectBoardsLoading,
-  deleteBoard,
-  updateBoard,
 } from '../../features/boards/boardsSlice';
 import { MainLayout } from '../layouts';
 
@@ -110,41 +108,6 @@ const DashboardPage = () => {
       const newBoardId = resultAction.payload._id;
       setIsCreateModalOpen(false);
       navigate(`/boards/${newBoardId}`);
-    }
-  };
-
-  /**
-   * Handle board deletion
-   * @param {string} boardId - ID of the board to delete
-   * */
-
-  const handleDeleteBoard = async boardId => {
-    const resultAction = await dispatch(deleteBoard(boardId));
-    if (deleteBoard.fulfilled.match(resultAction)) {
-      // Poți afișa o notificare de succes
-      console.log('Board deleted!');
-    } else {
-      // Poți afișa o eroare
-      console.error('Failed to delete board:', resultAction.error);
-    }
-  };
-
-  /**
-   * Update an existing board
-   * @param {string} boardId - ID of the board to update
-   * @param {Object} updatedData - Data to update the board with
-   * */
-  const handleUpdateBoard = async (boardId, updatedData) => {
-    const resultAction = await dispatch(
-      updateBoard({ _id: boardId, ...updatedData })
-    );
-
-    if (updateBoard.fulfilled.match(resultAction)) {
-      // Optionally handle success, e.g., show a notification
-      console.log('Board updated successfully');
-    } else {
-      // Handle error
-      console.error('Failed to update board:', resultAction.error);
     }
   };
 
@@ -311,5 +274,4 @@ const DashboardPage = () => {
     </MainLayout>
   );
 };
-
 export default DashboardPage;
