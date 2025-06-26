@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useFormik } from 'formik';
 import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { logIn } from '../../../redux/auth/authOperations';
 import { useAuth } from 'hooks/useAuth';
 import { loginSchema } from 'schemas';
@@ -22,9 +23,10 @@ import EyeCrossed from 'components/Icons/EyeCrossed';
 
 const LoginForm = () => {
   const [visible, setVisible] = useState(false);
-
   const dispatch = useDispatch();
-  const { isLoading } = useAuth();
+  const navigate = useNavigate();
+
+  const { isLoading, isLoggedIn } = useAuth();
 
   const onSubmit = (values, actions) => {
     dispatch(
@@ -53,6 +55,13 @@ const LoginForm = () => {
     onSubmit,
   });
 
+  // ✅ Redirecționează către dashboard după login
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate('/dashboard');
+    }
+  }, [isLoggedIn, navigate]);
+
   return (
     <Background>
       <FormWrap>
@@ -66,6 +75,7 @@ const LoginForm = () => {
         </AuthList>
 
         <FormUi onSubmit={handleSubmit} autoComplete="off">
+          {/* Email */}
           <label htmlFor="email">
             <Input
               id="email"
@@ -81,12 +91,12 @@ const LoginForm = () => {
               required
               autoComplete="username"
             />
-
             {errors.email && touched.email && (
               <ErrorPara id="email-error">{errors.email}</ErrorPara>
             )}
           </label>
 
+          {/* Password */}
           <label htmlFor="password">
             <PassInputWrap>
               <Input
@@ -103,7 +113,6 @@ const LoginForm = () => {
                 required
                 autoComplete="current-password"
               />
-
               <HideBtn
                 type="button"
                 onClick={() => setVisible(!visible)}
@@ -130,6 +139,8 @@ const LoginForm = () => {
               <ErrorPara id="password-error">{errors.password}</ErrorPara>
             )}
           </label>
+
+          {/* Submit */}
           <SubmitBtn type="submit" disabled={isSubmitting || isLoading}>
             Login
           </SubmitBtn>

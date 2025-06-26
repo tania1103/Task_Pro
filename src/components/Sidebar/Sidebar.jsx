@@ -10,10 +10,10 @@ const Sidebar = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!allBoards.length) {
+    if (!Array.isArray(allBoards) || allBoards.length === 0) {
       navigate('/home');
     }
-  }, [allBoards.length, navigate]);
+  }, [allBoards, navigate]);
 
   return (
     <Aside>

@@ -1,28 +1,31 @@
-import { ENDPOINTS, axiosInstance } from 'api';
+import ENDPOINTS from 'api/endpoints';
+import axiosInstance from 'api/axiosInstance';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 export const getTheme = createAsyncThunk(
-  'users/getTheme',
+  'theme/getTheme',
   async (_, thunkAPI) => {
     try {
-      const { data } = await axiosInstance.get(ENDPOINTS.users.current);
-
-      return data.user;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.message);
+      const { data } = await axiosInstance.get(ENDPOINTS.users.theme); // GET /api/users/theme
+      return data.theme; // ex: 'dark'
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.message);
     }
   }
 );
+// redux/theme/themeOperation.js
 
 export const updateTheme = createAsyncThunk(
-  'users/updateTheme',
+  'theme/updateTheme',
   async (theme, thunkAPI) => {
     try {
-      const { data } = await axiosInstance.patch('users/current/theme', theme);
+      const response = await axiosInstance.patch(ENDPOINTS.users.theme, {
+        theme,
+      });
 
-      return data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.message);
+      return response.data.data.theme;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.message);
     }
   }
 );
