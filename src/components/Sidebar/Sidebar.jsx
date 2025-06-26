@@ -24,10 +24,7 @@ import {
   Add as AddIcon,
   FormatListNumbered as ListIcon,
 } from '@mui/icons-material';
-import {
-  fetchBoards,
-  selectAllBoards,
-} from '../../features/boards/boardsSlice';
+import { fetchBoards, selectAllBoards } from '../../redux/board/boardSlice';
 import { useAuth } from '../../hooks';
 import Logo from '../../assets/logo.svg';
 
