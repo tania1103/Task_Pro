@@ -8,7 +8,7 @@ export const getBackgroundIcons = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const { data } = await axiosInstance.get(ENDPOINTS.backgrounds);
-      return data;
+      return data.backgrounds;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
