@@ -14,7 +14,7 @@ const unsetAuthorizationHeader = () => {
 };
 
 export const register = createAsyncThunk(
-  'auth/register',
+  'api/auth/register',
   async (credentials, thunkAPI) => {
     try {
       const { data } = await axiosInstance.post(
@@ -32,7 +32,7 @@ export const register = createAsyncThunk(
 );
 
 export const logIn = createAsyncThunk(
-  'auth/login',
+  'api/auth/login',
   async (credentials, thunkAPI) => {
     try {
       const { data } = await axiosInstance.post(
@@ -50,32 +50,35 @@ export const logIn = createAsyncThunk(
   }
 );
 
-export const logOut = createAsyncThunk('auth/logout', async (_, thunkAPI) => {
-  const state = thunkAPI.getState();
-  const refreshToken = state.auth.token;
+export const logOut = createAsyncThunk(
+  'api/auth/logout',
+  async (_, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const refreshToken = state.auth.token;
 
-  if (!refreshToken) {
-    return thunkAPI.rejectWithValue('No refresh token');
+    if (!refreshToken) {
+      return thunkAPI.rejectWithValue('No refresh token');
+    }
+
+    try {
+      await axiosInstance.post(ENDPOINTS.auth.logout, {
+        refreshToken,
+      });
+
+      localStorage.removeItem('refreshToken');
+      unsetAuthorizationHeader();
+    } catch (error) {
+      toast.error(error.response.data.message, TOASTER_CONFIG);
+      return thunkAPI.rejectWithValue(error.message);
+    }
   }
-
-  try {
-    await axiosInstance.post(ENDPOINTS.auth.logout, {
-      refreshToken,
-    });
-
-    localStorage.removeItem('refreshToken');
-    unsetAuthorizationHeader();
-  } catch (error) {
-    toast.error(error.response.data.message, TOASTER_CONFIG);
-    return thunkAPI.rejectWithValue(error.message);
-  }
-});
+);
 
 export const refreshUser = createAsyncThunk(
-  'auth/current',
+  'api/auth/profile',
   async (_, thunkAPI) => {
     try {
-      const { data } = await axiosInstance.get(ENDPOINTS.users.current);
+      const { data } = await axiosInstance.get(ENDPOINTS.auth.profile);
 
       return data.user;
     } catch ({ message }) {

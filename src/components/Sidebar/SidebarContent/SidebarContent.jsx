@@ -121,7 +121,6 @@ const SidebarContent = ({ menu, closeMenu }) => {
           </ExtraLink>
         </Logo>
 
-        <DevsBtn type="button">© Developers</DevsBtn>
         {/* <DevsBtn
           type="button"
           aria-label="Open developers modal"
@@ -131,7 +130,6 @@ const SidebarContent = ({ menu, closeMenu }) => {
         </DevsBtn> */}
 
         <BoardsWrap>
-          <SearchButton type="button">
           <MyBoard>{`${t('sidebar.boards')}: ${allBoards.length}`}</MyBoard>
 
           <SearchButton
@@ -185,8 +183,6 @@ const SidebarContent = ({ menu, closeMenu }) => {
         <HelpContainer>
           <img src={plantImg} alt="plant" />
           <HelpText>
-            Need help using&nbsp;
-            <HelpSpan>TaskPro</HelpSpan>? Check out the docs.
             {t('sidebar.helpText1')}&nbsp;
             <HelpSpan>TaskPro</HelpSpan>
             {t('sidebar.helpText2')}
