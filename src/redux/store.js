@@ -1,17 +1,41 @@
 import { configureStore } from '@reduxjs/toolkit';
-import authReducer from './auth/authSlice';
+import {
+  persistStore,
+  persistReducer,
+  FLUSH,
+  REHYDRATE,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
+} from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
+import { authReducer } from './auth/authSlice';
 import { boardsReducer } from './board/boardSlice';
+import { themeReducer } from './theme/themeSlice';
+import { supportReducer } from './support/supportSlice';
+import { boardSearchReducer } from './search/searchSlice';
+
+const authPersistConfig = {
+  key: 'auth',
+  storage,
+  whitelist: ['token', 'refreshToken'],
+};
 
 export const store = configureStore({
   reducer: {
-    auth: authReducer,
+    auth: persistReducer(authPersistConfig, authReducer),
     boards: boardsReducer,
+    theme: themeReducer,
+    support: supportReducer,
+    search: boardSearchReducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
-      serializableCheck: false, // De obicei necesar pentru persistenta
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
     }),
 });
 
-export const persistor = store; // Dacă folosești redux-persist, configurează-l aici
-// Dacă nu folosești redux-persist, poți elimina această linie
+export const persistor = persistStore(store);

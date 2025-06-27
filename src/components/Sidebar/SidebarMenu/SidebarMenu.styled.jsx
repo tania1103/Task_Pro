@@ -3,7 +3,7 @@ import { styled } from 'styled-components';
 export const AsideBackdrop = styled.div`
   display: none;
 
-  @media screen and (max-width: 1439px) {
+  @media screen and (max-width: 1440px) {
     display: block;
     position: fixed;
     top: 0;
@@ -13,27 +13,31 @@ export const AsideBackdrop = styled.div`
     width: 100vw;
     height: 100vh;
     background-color: rgba(21, 21, 21, 0.5);
-    z-index: 2;
   }
 `;
 
 export const AsideMenu = styled.div`
+  @media screen and (min-width: 1440px) {
+    display: none;
+  }
+
   @media screen and (max-width: 1439px) {
+    display: block;
     position: absolute;
     top: 0;
     left: -100%;
+    bottom: 0;
     width: 210px;
     height: 100vh;
-    padding: 24px;
-    background-color: #121212;
-    color: #fff;
-    opacity: 0;
-    transition: left 150ms linear, opacity 350ms linear;
-    z-index: 3;
+    padding: 14px;
+    background-color: var(--bar-color);
+    color: var(--text-color);
+    transition: left var(--easedTransition);
+    overflow-y: auto;
+    overflow-x: hidden;
 
     &.is-open {
       left: 0;
-      opacity: 1;
     }
   }
 

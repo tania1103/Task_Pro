@@ -6,6 +6,7 @@ const Eye = ({ width, height, fillColor, strokeColor }) => {
       viewBox="0 0 18 18"
       fill={fillColor || 'none'}
       stroke={strokeColor || null}
+      aria-hidden="true"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
