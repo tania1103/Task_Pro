@@ -1,0 +1,181 @@
+{
+  "startPage": {
+    "mainText": "Crește-ți productivitatea și preia controlul asupra sarcinilor cu Task Pro – nu mai aștepta, începe să-ți atingi obiectivele acum!",
+    "regLink": "Înregistrare",
+    "loginLink": "Conectare"
+  },
+  "authForms": {
+    "regTitle": "Înregistrare",
+    "loginTitle": "Autentificare",
+    "name": "Introduceți numele",
+    "email": "Introduceți adresa de email",
+    "password": "Creează o parolă",
+    "confirm": "Confirmă parola",
+    "regButton": "Înregistrează-te acum",
+    "loginButton": "Conectează-te acum"
+  },
+  "header": {
+    "theme": "Temă",
+    "theme1": "Deschis",
+    "theme2": "Întunecat",
+    "theme3": "Violet",
+    "lang": "Limba",
+    "langEn": "Engleză",
+    "langUk": "Ucrainiană"
+  },
+  "editUser": {
+    "title": "Editează profilul",
+    "button": "Trimite",
+    "toast": {
+      "editUserSuccess": "Modificările au fost salvate cu succes",
+      "editUserError": "Eroare la completare",
+      "maxLength": "Numele de utilizator trebuie să aibă între 3 și 25 de caractere"
+    }
+  },
+  "sidebar": {
+    "boards": "Panouri",
+    "search": "Găsite",
+    "showAll": "Arată tot",
+    "create": "Creează un panou nou",
+    "helpText1": "Dacă ai nevoie de ajutor cu",
+    "helpText2": ", consultă resursele noastre de suport sau contactează echipa noastră de asistență pentru clienți.",
+    "helpButton": "Ai nevoie de ajutor?",
+    "logoutButton": "Deconectare",
+    "helpModal": {
+      "toast.long": "Comentariul trebuie să aibă cel puțin 5 caractere ❗️",
+      "toast.error": "Te rugăm să introduci date pentru a trimite ❗️",
+      "toast.success": "Mesajul tău a fost trimis cu succes ✅",
+      "title": "Solicită ajutor",
+      "email": "Adresă de email",
+      "comment": "Comentariu",
+      "button": "Trimite"
+    }
+  },
+  "boards": {
+    "filterButton": "Filtre",
+    "filter": {
+      "label": "Culoare etichetă",
+      "all": "Toate",
+      "without priority": "Fără prioritate",
+      "low": "Scăzut",
+      "medium": "Mediu",
+      "high": "Ridicat"
+    },
+    "beforeStart1": "Înainte de a-ți începe proiectul, este esențial ",
+    "beforeStartColor": "să creezi un panou",
+    "beforeStart2": " pentru a vizualiza și urmări toate sarcinile și jaloanele necesare. Acest panou servește ca un instrument puternic pentru organizarea fluxului de lucru și pentru a asigura o colaborare eficientă între membrii echipei.",
+    "modals": {
+      "newTitle": "Panou nou",
+      "editTitle": "Editează panoul",
+      "icons": "Pictograme",
+      "background": "Fundal",
+      "input": "Titlu",
+      "searchBoard": "Caută panou",
+      "search": "Caută",
+      "searchInput": "Introdu numele panoului",
+      "newButton": "Creează",
+      "editButton": "Editează",
+      "customBackground": "Alege un fundal personalizat",
+      "chooseFile": "Alege fișier",
+      "fileChosen": "Fișierul a fost încărcat",
+      "toast.error": "Introdu un titlu pentru a crea un panou ❗️",
+      "toast.add.success": "Panoul a fost creat cu succes ✅",
+      "toast.edit.success": "Panoul a fost editat cu succes ✅"
+    }
+  },
+  "columns": {
+    "addButton": "Adaugă o altă coloană",
+    "modals": {
+      "addTitle": "Adaugă coloană",
+      "editTitle": "Editează coloana",
+      "input": "Titlu",
+      "addButton": "Adaugă",
+      "editButton": "Editează",
+      "toast.error": "O coloană nu poate exista fără titlu 😕"
+    }
+  },
+  "cards": {
+    "addButton": "Adaugă un alt card",
+    "priority": "Prioritate",
+    "deadline": "Termen limită",
+    "deadlineToday": "Astăzi este termenul limită",
+    "empty": "Nu există carduri",
+    "modals": {
+      "addTitle": "Adaugă card",
+      "editTitle": "Editează cardul",
+      "title": "Titlu",
+      "description": "Descriere",
+      "label": "Culoare etichetă",
+      "deadline": "Termen limită",
+      "today": "Astăzi,",
+      "addButton": "Adaugă",
+      "editButton": "Editează",
+      "toast.error": "Te rugăm să completezi toate câmpurile pentru a crea o sarcină ❗️",
+      "toast.add.success": "Cardul a fost adăugat cu succes ✅",
+      "toast.edit.success": "Cardul a fost editat cu succes ✅",
+      "toast.invalidDate": "Data trebuie să fie ulterioară zilei de azi ❗️"
+    },
+    "popup": {
+      "progress": "În desfășurare",
+      "done": "Finalizat"
+    }
+  },
+  "404": {
+    "ops": "Oooops...",
+    "title": "Pagina nu a fost găsită",
+    "text": "Se pare că ai ajuns pe o pagină care nu există. Nu-ți face griji, se mai întâmplă. Poate ai urmat un link învechit sau pagina a fost mutată.",
+    "stepsTitle": "Iată câteva lucruri pe care le poți încerca:",
+    "step1": "1. Verifică dacă URL-ul este corect și încearcă din nou.",
+    "step2": "2. Revino la pagina principală și navighează de acolo.",
+    "step3": "3. Contactează administratorul site-ului pentru asistență.",
+    "stillTrouble": "Dacă întâmpini în continuare probleme, nu ezita să ne contactezi. Suntem aici să te ajutăm!",
+    "homeLink": "Înapoi la început",
+    "helpButton": "Contactează-ne"
+  },
+  "deleteModal": {
+    "title": "Ești sigur că vrei să ștergi acest element?",
+    "confirm": "Confirmă"
+  },
+  "developersModal": {
+    "text": "Dezvoltat de DreamTeam"
+  },
+  "stats": {
+    "header": "Statistica sarcinilor mele",
+    "headerPriority": "Statistica priorității sarcinilor",
+    "headerTiming": "Statistica termenelor sarcinilor",
+    "selectHeader": "Statistica pentru panou:",
+    "youHave": "Ai:",
+    "boards": "panouri",
+    "tasks": "sarcini",
+    "has": "are",
+    "all": "toate",
+    "noTasks": "Nu ai încă sarcini pentru a genera statistici...",
+    "priority": {
+      "without": "Niciuna",
+      "low": "Scăzut",
+      "medium": "Mediu",
+      "high": "Ridicat"
+    },
+    "timing": {
+      "outdated": "Depășit",
+      "today": "Astăzi",
+      "week": "Săptămâna aceasta",
+      "month": "Luna aceasta",
+      "further": "Mai departe"
+    }
+  },
+  "schedule": {
+    "header": "Programul meu",
+    "monday": "Luni",
+    "tuesday": "Marți",
+    "wednesday": "Miercuri",
+    "thursday": "Joi",
+    "friday": "Vineri",
+    "saturday": "Sâmbătă",
+    "sunday": "Duminică",
+    "noTasks": "Nicio sarcină pentru această zi",
+    "next": "Luna următoare",
+    "current": "Luna curentă"
+  },
+  "toast.maxTitle": "Lungimea maximă a titlului este de 25 de caractere"
+}
