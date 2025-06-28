@@ -3,7 +3,7 @@ import ENDPOINTS from './endpoints';
 
 const baseURL = process.env.REACT_APP_API_URL || 'https://task-pro-backend-5kph.onrender.com';
 
-const axiosInstance = axios.create({ baseURL });
+const axiosInstance = axios.create({ baseURL, withCredentials: true });
 
 // 🔐 Interceptor REQUEST: adaugă tokenul din localStorage
 axiosInstance.interceptors.request.use(
@@ -12,6 +12,7 @@ axiosInstance.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    config.headers.Origin = 'https://tania1103.github.io/Task_Pro/';
     return config;
   },
   error => Promise.reject(error)
