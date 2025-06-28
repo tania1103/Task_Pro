@@ -13,6 +13,7 @@ const ENDPOINTS = Object.freeze({
     allBoards: '/api/boards',
     oneBoard: id => `/api/boards/${id}`,
     boardFilter: id => `/api/boards/${id}/filter`,
+    backgrounds: '/api/boards/{id}/background',
   },
   columns: {
     allColumns: '/api/columns',

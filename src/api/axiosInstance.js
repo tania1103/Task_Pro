@@ -12,7 +12,6 @@ axiosInstance.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    config.headers.Origin = 'https://tania1103.github.io/Task_Pro/';
     return config;
   },
   error => Promise.reject(error)
@@ -42,10 +41,9 @@ axiosInstance.interceptors.response.use(
         const refreshToken = localStorage.getItem('refreshToken');
         if (!refreshToken) throw new Error('Refresh token lipsește');
 
-        const { data } = await axios.post(
+        const { data } = await axiosInstance.post(
           ENDPOINTS.auth.refreshToken,
-          { refreshToken },
-          { baseURL } // Ne asigurăm că se folosește același baseURL
+          { refreshToken }
         );
 
         const newToken = data.token;
