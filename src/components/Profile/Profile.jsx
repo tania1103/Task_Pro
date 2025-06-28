@@ -17,8 +17,6 @@ const Profile = () => {
   const avatar = useSelector(selectUserAvatar) ?? 'default';
   const isLoading = useSelector(selectIsLoading);
 
-  console.log('Avatar:', avatar);
-  console.log('Name User:', nameUser);
   return (
     <UserContainer>
       <UserName>{nameUser ?? 'User'}</UserName>

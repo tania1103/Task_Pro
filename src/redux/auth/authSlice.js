@@ -5,6 +5,7 @@ import {
   logOut,
   refreshUser,
   editUserAvatar,
+  editUserInfo,
 } from './authOperations';
 import { handlePending, handleRejected } from '../helpers';
 
@@ -28,6 +29,7 @@ export const authSlice = createSlice({
       .addCase(logIn.pending, handlePending)
       .addCase(logOut.pending, handlePending)
       .addCase(editUserAvatar.pending, handlePending)
+      .addCase(editUserInfo.pending, handlePending)
       .addCase(refreshUser.pending, state => {
         state.isLoading = true;
         state.isRefreshing = true;
@@ -88,14 +90,27 @@ export const authSlice = createSlice({
         state.isLoading = false;
       })
 
-      // ✅ EDIT USER
+      // ✅ EDIT USER AVATAR
       .addCase(editUserAvatar.fulfilled, (state, { payload }) => {
         if (payload?.profileImage) {
-          console.log('editUserAvatar.fulfilled', payload);
           state.user = {
             ...state.user,
             // ...payload.user,
             profileImage: payload.profileImage,
+          };
+        }
+        state.isLoggedIn = true;
+        state.isLoading = false;
+      })
+
+      // ✅ EDIT USER INFO
+      .addCase(editUserInfo.fulfilled, (state, { payload }) => {
+        if (payload) {
+          // If backend returns updated user:
+          state.user = {
+            ...state.user,
+            name: payload.data.name,
+            email: payload.data.email,
           };
         }
         state.isLoggedIn = true;
@@ -107,6 +122,7 @@ export const authSlice = createSlice({
       .addCase(logIn.rejected, handleRejected)
       .addCase(logOut.rejected, handleRejected)
       .addCase(editUserAvatar.rejected, handleRejected)
+      .addCase(editUserInfo.rejected, handleRejected)
       .addCase(refreshUser.rejected, (state, { payload }) => {
         state.isRefreshing = false;
         state.isLoading = false;

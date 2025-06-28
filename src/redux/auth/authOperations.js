@@ -132,18 +132,11 @@ export const editUserAvatar = createAsyncThunk(
   'user/editUser',
   async (dataUser, thunkAPI) => {
     const formData = new FormData();
-    // const { profileImage, name, email, password } = dataUser;
     const { profileImage } = dataUser;
 
     if (profileImage instanceof File) {
       formData.append('avatar', profileImage);
     }
-
-    // formData.append('name', name);
-    // formData.append('email', email);
-    // if (password) {
-    //   formData.append('password', password);
-    // }
 
     try {
       const { data } = await axiosInstance.patch(
@@ -153,8 +146,26 @@ export const editUserAvatar = createAsyncThunk(
           headers: { 'Content-Type': 'multipart/form-data' },
         }
       );
-      console.log('data user: ', data);
 
+      return data;
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || 'Update failed',
+        TOASTER_CONFIG
+      );
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const editUserInfo = createAsyncThunk(
+  'user/editUserInfo',
+  async ({ name, email }, thunkAPI) => {
+    try {
+      const { data } = await axiosInstance.put(
+        ENDPOINTS.users.profile, // asigură-te că acesta e endpointul corect
+        { name, email }
+      );
       return data;
     } catch (error) {
       toast.error(
