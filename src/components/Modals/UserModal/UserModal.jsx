@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { useSelector, useDispatch } from 'react-redux';
-import { editUser } from '../../../redux/auth/authOperations';
+import { editUserAvatar } from '../../../redux/auth/authOperations';
 import {
   selectUsername,
   selectUserEmail,
@@ -92,7 +92,7 @@ const UserModal = ({ onClose }) => {
     editUserSchema
       .validate(user)
       .then(valid => {
-        dispatch(editUser(user));
+        dispatch(editUserAvatar(user));
         toast(t('editUser.toast.editUserSuccess'), TOASTER_CONFIG);
         onClose();
       })

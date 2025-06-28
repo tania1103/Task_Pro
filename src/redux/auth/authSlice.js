@@ -4,7 +4,7 @@ import {
   logIn,
   logOut,
   refreshUser,
-  editUser,
+  editUserAvatar,
 } from './authOperations';
 import { handlePending, handleRejected } from '../helpers';
 
@@ -27,7 +27,7 @@ export const authSlice = createSlice({
       .addCase(register.pending, handlePending)
       .addCase(logIn.pending, handlePending)
       .addCase(logOut.pending, handlePending)
-      .addCase(editUser.pending, handlePending)
+      .addCase(editUserAvatar.pending, handlePending)
       .addCase(refreshUser.pending, state => {
         state.isLoading = true;
         state.isRefreshing = true;
@@ -78,7 +78,7 @@ export const authSlice = createSlice({
           return;
         }
 
-        state.user = payload.user; // ✅ extragem doar userul
+        state.user = payload; // ✅ extragem doar userul
         console.log('✅ REFRESH user:', state.user);
         state.token = tokenFromLocalStorage;
         state.refreshToken =
@@ -89,13 +89,13 @@ export const authSlice = createSlice({
       })
 
       // ✅ EDIT USER
-      .addCase(editUser.fulfilled, (state, { payload }) => {
-        if (payload?.data?.profileImage) {
-          console.log('EDIT USER payload.user:', payload.data.profileImage);
+      .addCase(editUserAvatar.fulfilled, (state, { payload }) => {
+        if (payload?.profileImage) {
+          console.log('editUserAvatar.fulfilled', payload);
           state.user = {
             ...state.user,
             // ...payload.user,
-            profileImage: payload.data.profileImage,
+            profileImage: payload.profileImage,
           };
         }
         state.isLoggedIn = true;
@@ -106,7 +106,7 @@ export const authSlice = createSlice({
       .addCase(register.rejected, handleRejected)
       .addCase(logIn.rejected, handleRejected)
       .addCase(logOut.rejected, handleRejected)
-      .addCase(editUser.rejected, handleRejected)
+      .addCase(editUserAvatar.rejected, handleRejected)
       .addCase(refreshUser.rejected, (state, { payload }) => {
         state.isRefreshing = false;
         state.isLoading = false;

@@ -128,7 +128,7 @@ export const refreshUser = createAsyncThunk(
 );
 
 // ✏️ EDIT USER
-export const editUser = createAsyncThunk(
+export const editUserAvatar = createAsyncThunk(
   'user/editUser',
   async (dataUser, thunkAPI) => {
     const formData = new FormData();
@@ -147,7 +147,7 @@ export const editUser = createAsyncThunk(
 
     try {
       const { data } = await axiosInstance.patch(
-        ENDPOINTS.users.current,
+        ENDPOINTS.users.avatar,
         formData,
         {
           headers: { 'Content-Type': 'multipart/form-data' },
