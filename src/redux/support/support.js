@@ -1,4 +1,5 @@
-import { ENDPOINTS, axiosInstance } from 'api';
+import  axiosInstance  from 'api/axiosInstance';
+import ENDPOINTS  from 'api/endpoints';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 export const support = createAsyncThunk(
