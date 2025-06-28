@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { axiosInstance } from 'api';
-import { ENDPOINTS } from 'api';
+import  axiosInstance  from 'api/axiosInstance';
+import ENDPOINTS  from 'api/endpoints';
 
 
 export const getBackgroundIcons = createAsyncThunk(
@@ -8,7 +8,7 @@ export const getBackgroundIcons = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const { data } = await axiosInstance.get(ENDPOINTS.backgrounds);
-      return data;
+      return data.backgrounds;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }

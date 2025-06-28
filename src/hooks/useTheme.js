@@ -1,25 +1,17 @@
-import { useEffect, useLayoutEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useLayoutEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { getTheme } from '../redux/theme/themeOperation';
 import { selectTheme } from '../redux/theme/themeSelector';
-import { useAuth } from './useAuth';
 
 export const useTheme = () => {
-  const dispatch = useDispatch();
-  const { isLoggedIn } = useAuth();
-  const themeBack = useSelector(selectTheme);
-
-  useEffect(() => {
-    isLoggedIn && dispatch(getTheme());
-  }, [dispatch, isLoggedIn, themeBack]);
+  const theme = useSelector(selectTheme);
 
   useLayoutEffect(() => {
-    if (themeBack) {
-      document.documentElement.setAttribute('data-theme', themeBack);
-      localStorage.setItem('app-them', themeBack);
+    if (typeof theme === 'string') {
+      console.log('🎨 Tema activă în Redux:', theme); // ← mutat aici
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('app-theme', theme);
     }
-  }, [themeBack]);
+  }, [theme]);
 
-  return { themeBack };
+  return { theme };
 };

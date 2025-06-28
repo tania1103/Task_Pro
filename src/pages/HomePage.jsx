@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -10,7 +9,7 @@ import { selectIsLoading } from '../redux/theme/themeSelector';
 import Loader from 'components/Loader';
 
 const HomePage = () => {
-  const allBoards = useSelector(selectBoards);
+  const allBoards = useSelector(selectBoards) || [];
   const dispatch = useDispatch();
 
   useEffect(() => {

@@ -10,8 +10,8 @@ import { handlePending, handleRejected } from '../helpers';
 
 const initialState = {
   user: null,
-  token: localStorage.getItem('accessToken') || null,
-  refreshToken: localStorage.getItem('refreshToken') || null,
+  token: null,
+  refreshToken: null,
   isLoggedIn: false,
   isLoading: false,
   isRefreshing: false,
@@ -33,61 +33,74 @@ export const authSlice = createSlice({
         state.isRefreshing = true;
       })
 
-      // ✅ Register
+      // ✅ REGISTER
       .addCase(register.fulfilled, (state, { payload }) => {
         console.log('✅ REGISTER payload:', payload);
 
-        if (!payload?.tokenAccess) return;
+        if (payload?.tokenAccess) state.token = payload.tokenAccess;
+        if (payload?.refreshToken) state.refreshToken = payload.refreshToken;
 
         state.user = payload;
-        state.token = payload.tokenAccess;
-        state.refreshToken = payload.refreshToken || null;
         state.isLoggedIn = true;
         state.isLoading = false;
       })
 
-      // ✅ Login
+      // ✅ LOGIN
       .addCase(logIn.fulfilled, (state, { payload }) => {
         console.log('✅ LOGIN payload:', payload);
 
-        if (!payload?.tokenAccess) return;
+        if (payload?.tokenAccess) state.token = payload.tokenAccess;
+        if (payload?.refreshToken) state.refreshToken = payload.refreshToken;
 
         state.user = payload;
-        state.token = payload.tokenAccess;
-        state.refreshToken = payload.refreshToken || null;
         state.isLoggedIn = true;
         state.isLoading = false;
       })
 
-      // ✅ Logout
+      // ✅ LOGOUT
       .addCase(logOut.fulfilled, state => {
-        state.user = { name: null, email: null };
+        state.user = null;
         state.token = null;
         state.refreshToken = null;
         state.isLoggedIn = false;
         state.isLoading = false;
       })
 
-      // ✅ Refresh
+      // ✅ REFRESH USER
       .addCase(refreshUser.fulfilled, (state, { payload }) => {
-        if (!payload?.tokenAccess) return;
+        console.log('✅ REFRESH payload:', payload);
 
-        state.user = { ...payload };
-        state.token = payload.tokenAccess;
+        const tokenFromLocalStorage = localStorage.getItem('accessToken');
+        if (!tokenFromLocalStorage) {
+          console.warn(
+            '⚠️ No valid token found in localStorage after refresh. Skipping state update.'
+          );
+          return;
+        }
+
+        state.user = payload.user; // ✅ extragem doar userul
+        state.token = tokenFromLocalStorage;
+        state.refreshToken =
+          payload.refreshToken || localStorage.getItem('refreshToken');
         state.isLoggedIn = true;
         state.isRefreshing = false;
         state.isLoading = false;
       })
 
-      // ✅ Edit user
+      // ✅ EDIT USER
       .addCase(editUser.fulfilled, (state, { payload }) => {
-        state.user = { ...state.user, ...payload.user };
-        state.user.avatar_url = payload.user.avatar_url;
+        if (payload?.user) {
+          state.user = {
+            ...state.user,
+            ...payload.user,
+            avatar_url: payload.user.avatar_url,
+          };
+        }
         state.isLoggedIn = true;
         state.isLoading = false;
       })
 
-      // ❌ Rejected
+      // ❌ REJECTED
       .addCase(register.rejected, handleRejected)
       .addCase(logIn.rejected, handleRejected)
       .addCase(logOut.rejected, handleRejected)
