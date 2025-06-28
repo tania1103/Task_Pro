@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { axiosInstance } from 'api';
-import { ENDPOINTS } from 'api';
+import { axiosInstance } from 'api/axiosInstance';
+import { ENDPOINTS } from 'api/endpoints';
 
 export const getBackgroundIcons = createAsyncThunk(
   'boards/getBackgroundIcons',

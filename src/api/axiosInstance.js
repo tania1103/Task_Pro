@@ -4,7 +4,7 @@ import ENDPOINTS from './endpoints';
 const baseURL =
   process.env.REACT_APP_API_URL || 'https://task-pro-backend-5kph.onrender.com';
 
-const axiosInstance = axios.create({ baseURL });
+const axiosInstance = axios.create({ baseURL, withCredentials: true });
 
 // 🔐 Interceptor REQUEST: adaugă tokenul din localStorage
 axiosInstance.interceptors.request.use(
@@ -42,10 +42,9 @@ axiosInstance.interceptors.response.use(
         const refreshToken = localStorage.getItem('refreshToken');
         if (!refreshToken) throw new Error('Refresh token lipsește');
 
-        const { data } = await axios.post(
+        const { data } = await axiosInstance.post(
           ENDPOINTS.auth.refreshToken,
-          { refreshToken },
-          { baseURL } // Ne asigurăm că se folosește același baseURL
+          { refreshToken }
         );
 
         const newToken = data.token;
