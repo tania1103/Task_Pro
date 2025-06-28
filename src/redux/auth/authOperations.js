@@ -2,7 +2,6 @@ import toast from 'react-hot-toast';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import ENDPOINTS from 'api/endpoints';
 import axiosInstance from 'api/axiosInstance';
-
 import { TOASTER_CONFIG } from 'constants';
 
 const setAuthorizationHeader = token => {
@@ -13,6 +12,7 @@ const unsetAuthorizationHeader = () => {
   axiosInstance.defaults.headers.common.Authorization = '';
 };
 
+// 🟢 REGISTER
 export const register = createAsyncThunk(
   'api/auth/register',
   async (credentials, thunkAPI) => {
@@ -21,18 +21,31 @@ export const register = createAsyncThunk(
         ENDPOINTS.auth.register,
         credentials
       );
-      setAuthorizationHeader(data.user.tokenAccess);
 
-      return data;
+      const { token, refreshToken, user } = data;
+
+      setAuthorizationHeader(token);
+      localStorage.setItem('accessToken', token);
+      localStorage.setItem('refreshToken', refreshToken);
+
+      return {
+        ...user,
+        tokenAccess: token,
+        refreshToken,
+      };
     } catch (error) {
-      toast.error(error.response.data.message, TOASTER_CONFIG);
+      toast.error(
+        error.response?.data?.message || 'Registration failed',
+        TOASTER_CONFIG
+      );
       return thunkAPI.rejectWithValue(error.message);
     }
   }
 );
 
+// 🟢 LOGIN
 export const logIn = createAsyncThunk(
-  'api/auth/login',
+  'auth/logIn',
   async (credentials, thunkAPI) => {
     try {
       const { data } = await axiosInstance.post(
@@ -40,59 +53,91 @@ export const logIn = createAsyncThunk(
         credentials
       );
 
-      setAuthorizationHeader(data.user.tokenAccess);
+      const { token, refreshToken, user } = data;
 
-      return data;
-    } catch (error) {
-      toast.error(error.response.data.message);
-      return thunkAPI.rejectWithValue(error.message);
-    }
-  }
-);
+      setAuthorizationHeader(token);
+      localStorage.setItem('accessToken', token);
+      localStorage.setItem('refreshToken', refreshToken);
 
-export const logOut = createAsyncThunk(
-  'api/auth/logout',
-  async (_, thunkAPI) => {
-    const state = thunkAPI.getState();
-    const refreshToken = state.auth.token;
-
-    if (!refreshToken) {
-      return thunkAPI.rejectWithValue('No refresh token');
-    }
-
-    try {
-      await axiosInstance.post(ENDPOINTS.auth.logout, {
+      return {
+        ...user,
+        tokenAccess: token,
         refreshToken,
-      });
-
-      localStorage.removeItem('refreshToken');
-      unsetAuthorizationHeader();
+      };
     } catch (error) {
-      toast.error(error.response.data.message, TOASTER_CONFIG);
+      toast.error(
+        error.response?.data?.message || 'Login failed',
+        TOASTER_CONFIG
+      );
       return thunkAPI.rejectWithValue(error.message);
     }
   }
 );
 
+// 🔴 LOGOUT
+export const logOut = createAsyncThunk('auth/logout', async (_, thunkAPI) => {
+  const state = thunkAPI.getState();
+  const refreshToken =
+    state.auth.refreshToken || localStorage.getItem('refreshToken');
+
+  if (!refreshToken) {
+    return thunkAPI.rejectWithValue('No refresh token');
+  }
+
+  try {
+    await axiosInstance.post(ENDPOINTS.auth.logout, {
+      refreshToken,
+    });
+
+    localStorage.removeItem('refreshToken');
+    unsetAuthorizationHeader();
+  } catch (error) {
+    toast.error(error.response.data.message, TOASTER_CONFIG);
+    return thunkAPI.rejectWithValue(error.message);
+  }
+});
+
+// 🔄 REFRESH USER
 export const refreshUser = createAsyncThunk(
   'api/auth/profile',
   async (_, thunkAPI) => {
     try {
-      const { data } = await axiosInstance.get(ENDPOINTS.auth.profile);
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (!refreshToken) throw new Error('No refresh token available');
 
-      return data.user;
-    } catch ({ message }) {
-      return thunkAPI.rejectWithValue(message);
+      const { data } = await axiosInstance.post(ENDPOINTS.auth.refreshToken, {
+        refreshToken,
+      });
+
+      const { token, user } = data;
+      if (!token) throw new Error('No token returned from refresh');
+
+      setAuthorizationHeader(token);
+      localStorage.setItem('accessToken', token);
+
+      return {
+        ...user,
+        tokenAccess: token,
+        refreshToken,
+      };
+    } catch (error) {
+      console.error('Token refresh failed:', error);
+      return thunkAPI.rejectWithValue(error.message);
     }
   }
 );
 
+// ✏️ EDIT USER
 export const editUser = createAsyncThunk(
   'user/editUser',
   async (dataUser, thunkAPI) => {
     const formData = new FormData();
     const { avatar_url, name, email, password } = dataUser;
-    formData.append('avatar_url', avatar_url);
+
+    if (avatar_url instanceof File) {
+      formData.append('avatar_url', avatar_url);
+    }
+
     formData.append('name', name);
     formData.append('email', email);
     if (password) {
@@ -100,12 +145,20 @@ export const editUser = createAsyncThunk(
     }
 
     try {
-      const { data } = await axiosInstance.patch('users/current', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const { data } = await axiosInstance.patch(
+        ENDPOINTS.users.current,
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        }
+      );
 
       return data;
     } catch (error) {
+      toast.error(
+        error.response?.data?.message || 'Update failed',
+        TOASTER_CONFIG
+      );
       return thunkAPI.rejectWithValue(error.message);
     }
   }

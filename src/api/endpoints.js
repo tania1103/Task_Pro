@@ -1,34 +1,32 @@
 const ENDPOINTS = Object.freeze({
   auth: {
-    register: 'api/auth/register',
-    login: 'api/auth/login',
-    logout: 'api/auth/logout',
-    refreshToken: 'api/auth/refresh',
-    me: 'api/auth/me',
+    register: '/api/auth/register',
+    login: '/api/auth/login',
+    logout: '/api/auth/logout',
+    refreshToken: '/api/auth/refresh',
+    me: '/api/auth/me',
   },
   users: {
-    current: 'users/profile',
-    theme: 'users/current/theme',
+    theme: '/api/users/theme',
   },
-  backgrounds: 'api/backgrounds',
   boards: {
-    allBoards: 'api/boards',
-    oneBoard: boardId => `api/boards/${boardId}`,
-    boardFilter: boardId => `api/boards/${boardId}/filter`,
+    allBoards: '/api/boards',
+    oneBoard: id => `/api/boards/${id}`,
+    boardFilter: id => `/api/boards/${id}/filter`,
   },
   columns: {
-    allColumns: 'api/columns',
-    oneColumn: columnId => `api/columns/${columnId}`,
+    allColumns: '/api/columns',
+    oneColumn: id => `/api/columns/${id}`,
   },
   cards: {
-    allCards: 'api/cards',
-    cardsStats: 'api/cards/stats',
-    oneCard: cardId => `api/cards/${cardId}`,
-    cardStatus: cardId => `api/cards/${cardId}/status`,
-    cardOrder: cardId => `api/cards/${cardId}/order`,
+    allCards: '/api/cards',
+    cardsStats: '/api/cards/stats',
+    oneCard: id => `/api/cards/${id}`,
+    cardStatus: id => `/api/cards/${id}/status`,
+    cardOrder: id => `/api/cards/${id}/order`,
   },
   email: {
-    support: 'email/support',
+    support: '/api/email/support',
   },
 });
 

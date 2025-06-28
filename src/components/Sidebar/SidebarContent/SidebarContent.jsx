@@ -62,11 +62,21 @@ const SidebarContent = ({ menu, closeMenu }) => {
   const boardsContainer = useRef(null);
 
   useEffect(() => {
+    if (
+      !Array.isArray(allBoards) ||
+      !currentBoard?._id ||
+      !boardsContainer.current
+    )
+      return;
+
     const currentIndex = allBoards.findIndex(
       ({ _id }) => _id === currentBoard._id
     );
+    if (currentIndex === -1) return;
+
     const heightToScroll =
       allBoards.length > 0 ? currentIndex / allBoards.length : 0;
+
     boardsContainer.current.scrollTop =
       boardsContainer.current.scrollHeight * heightToScroll;
   }, [allBoards, currentBoard]);
@@ -97,9 +107,11 @@ const SidebarContent = ({ menu, closeMenu }) => {
     localStorage.removeItem('app-them');
   };
 
-  const filteredBoards = allBoards.filter(({ title }) => {
-    return title && title.toLowerCase().trim().includes(searchValue);
-  });
+  const filteredBoards = Array.isArray(allBoards)
+    ? allBoards.filter(({ title }) =>
+        title?.toLowerCase().trim().includes(searchValue)
+      )
+    : [];
 
   return (
     <Container>
@@ -130,7 +142,9 @@ const SidebarContent = ({ menu, closeMenu }) => {
         </DevsBtn> */}
 
         <BoardsWrap>
-          <MyBoard>{`${t('sidebar.boards')}: ${allBoards.length}`}</MyBoard>
+          <MyBoard>{`${t('sidebar.boards')}: ${
+            Array.isArray(allBoards) ? allBoards.length : 0
+          }`}</MyBoard>
 
           <SearchButton
             type="button"

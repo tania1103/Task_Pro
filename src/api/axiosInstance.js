@@ -2,82 +2,65 @@ import axios from 'axios';
 import ENDPOINTS from './endpoints';
 
 const baseURL =
-  process.env.REACT_APP_API_URL ||
-  'https://task-pro-backend-5kph.onrender.com/';
+  process.env.REACT_APP_API_URL || 'https://task-pro-backend-5kph.onrender.com';
 
-const axiosInstance = axios.create({
-  baseURL,
-});
+const axiosInstance = axios.create({ baseURL });
 
-// Interceptor REQUEST: adaugă tokenul de acces din localStorage
+// 🔐 Interceptor REQUEST: adaugă tokenul din localStorage
 axiosInstance.interceptors.request.use(
   config => {
-    const persistAuth = localStorage.getItem('persist:auth');
-    let accessToken = null;
-
-    if (persistAuth) {
-      try {
-        const parsed = JSON.parse(persistAuth);
-        accessToken = parsed.tokenAccess?.replace(/"/g, '') || null;
-      } catch (err) {
-        console.error('Eroare la parsarea tokenului din localStorage', err);
-      }
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
-
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
-    }
-
     return config;
   },
   error => Promise.reject(error)
 );
 
-// Interceptor RESPONSE: reînnoiește tokenul dacă expiră (401)
+// 🔁 Interceptor RESPONSE: încearcă reîmprospătarea tokenului dacă expiră
 axiosInstance.interceptors.response.use(
   response => response,
   async error => {
-    if (
-      error.response?.status === 401 &&
-      error.config &&
-      !error.config._isRetry
-    ) {
-      error.config._isRetry = true;
+    const originalRequest = error.config;
+
+    // Rețea căzută sau server indisponibil
+    if (!error.response) {
+      console.error('❌ Eroare rețea sau server indisponibil:', error.message);
+      return Promise.reject(error);
+    }
+
+    const isUnauthorized =
+      error.response.status === 401 &&
+      !originalRequest._isRetry &&
+      !originalRequest.url.includes(ENDPOINTS.auth.refreshToken);
+
+    if (isUnauthorized) {
+      originalRequest._isRetry = true;
 
       try {
-        const persistAuth = localStorage.getItem('persist:auth');
-        let refreshToken = null;
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (!refreshToken) throw new Error('Refresh token lipsește');
 
-        if (persistAuth) {
-          const parsed = JSON.parse(persistAuth);
-          refreshToken = parsed.refreshToken?.replace(/"/g, '') || null;
-        }
-
-        if (!refreshToken) throw new Error('Refresh token lipsește.');
-
-        // Trimite request de refresh
         const { data } = await axios.post(
-          `${baseURL}/${ENDPOINTS.auth.refreshToken}`,
-          {
-            refreshToken,
-          }
+          ENDPOINTS.auth.refreshToken,
+          { refreshToken },
+          { baseURL } // Ne asigurăm că se folosește același baseURL
         );
 
-        const newAccessToken = data.user.tokenAccess;
+        const newToken = data.token;
+        if (!newToken) throw new Error('Token nou lipsă în răspuns');
 
-        // Update în localStorage
-        const updatedAuth = {
-          ...JSON.parse(persistAuth),
-          tokenAccess: `"${newAccessToken}"`,
-        };
-        localStorage.setItem('persist:auth', JSON.stringify(updatedAuth));
+        localStorage.setItem('accessToken', newToken);
 
-        // Retry request original cu token nou
-        axiosInstance.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`;
-        return axiosInstance.request(error.config);
-      } catch (err) {
-        console.error('Token refresh eșuat:', err);
-        return Promise.reject(err);
+        // Actualizăm tokenul pentru requestul original
+        axiosInstance.defaults.headers.common.Authorization = `Bearer ${newToken}`;
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+
+        return axiosInstance(originalRequest);
+      } catch (refreshError) {
+        console.error('🔁 Token refresh eșuat:', refreshError.message);
+        return Promise.reject(refreshError);
       }
     }
 
