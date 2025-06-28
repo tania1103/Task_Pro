@@ -132,10 +132,10 @@ export const editUser = createAsyncThunk(
   'user/editUser',
   async (dataUser, thunkAPI) => {
     const formData = new FormData();
-    const { avatar_url, name, email, password } = dataUser;
+    const { profileImage, name, email, password } = dataUser;
 
-    if (avatar_url instanceof File) {
-      formData.append('avatar_url', avatar_url);
+    if (profileImage instanceof File) {
+      formData.append('profileImage', profileImage);
     }
 
     formData.append('name', name);

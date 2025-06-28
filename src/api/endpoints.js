@@ -8,6 +8,7 @@ const ENDPOINTS = Object.freeze({
   },
   users: {
     theme: '/api/users/theme',
+    current: '/api/users/profile',
   },
   boards: {
     allBoards: '/api/boards',

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { useSelector, useDispatch } from 'react-redux';
@@ -34,7 +34,10 @@ const UserModal = ({ onClose }) => {
   const { t } = useTranslation();
 
   const [visible, setVisible] = useState(false);
-  const [avatar_url, setAvatar_url] = useState(useSelector(selectUserAvatar));
+  const reduxProfileImage = useSelector(selectUserAvatar);
+  // Eliminăm useState pentru profileImage, folosind direct reduxProfileImage
+  const [profileImage, setprofileImage] = useState(reduxProfileImage);
+  // Folosim reduxProfileImage pentru a actualiza profileImage la montare
   const [name, setName] = useState(useSelector(selectUsername));
   const [email, setEmail] = useState(useSelector(selectUserEmail));
   const [password, setPassword] = useState('');
@@ -42,8 +45,12 @@ const UserModal = ({ onClose }) => {
   const [errorMsgShown, setErrorMsgShown] = useState(false);
   const [errorClassName, setErrorClassName] = useState('');
 
+  useEffect(() => {
+    setprofileImage(reduxProfileImage);
+  }, [reduxProfileImage]);
+
   function changeImg(event) {
-    setAvatar_url(event.target.files[0]);
+    setprofileImage(event.target.files[0]);
     const file = new FileReader();
     file.onload = function () {
       setPreview(file.result);
@@ -76,7 +83,7 @@ const UserModal = ({ onClose }) => {
   function editProfile(event) {
     event.preventDefault();
 
-    const user = { avatar_url, name, email, password };
+    const user = { profileImage, name, email, password };
     if (!password) {
       user.password = undefined;
     }
@@ -92,15 +99,19 @@ const UserModal = ({ onClose }) => {
         toast(error.message, TOASTER_CONFIG);
       });
   }
+  console.log('UserModal profileImage:', profileImage);
   return (
     <div>
       <h3>{t('editUser.title')}</h3>
       <FormUser onSubmit={editProfile}>
         <Avatar>
           <AvatarEdit>
-            {avatar_url !== 'default' ? (
+            {profileImage !== 'default' ? (
               <img
-                src={preview || avatar_url}
+                src={
+                  preview ||
+                  (typeof profileImage === 'string' ? profileImage : '')
+                }
                 alt="avatar"
                 style={{ width: 68, height: 68, objectFit: 'cover' }}
               />

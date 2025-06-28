@@ -7,7 +7,10 @@ export const selectIsLoading = ({ auth }) => auth.isLoading;
 export const selectUser = ({ auth }) => auth.user;
 export const selectUsername = ({ auth }) => auth.user?.name || '';
 export const selectUserEmail = ({ auth }) => auth.user?.email || '';
-export const selectUserAvatar = ({ auth }) => auth.user?.avatar_url || '';
+export const selectUserAvatar = ({ auth }) => {
+  console.log(auth);
+  return auth.user?.profileImage || 'default';
+};
 
 // Selectori de tokeni (dacă ai nevoie)
 export const selectAccessToken = ({ auth }) => auth.token;

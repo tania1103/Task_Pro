@@ -79,6 +79,7 @@ export const authSlice = createSlice({
         }
 
         state.user = payload.user; // ✅ extragem doar userul
+        console.log('✅ REFRESH user:', state.user);
         state.token = tokenFromLocalStorage;
         state.refreshToken =
           payload.refreshToken || localStorage.getItem('refreshToken');
@@ -90,10 +91,11 @@ export const authSlice = createSlice({
       // ✅ EDIT USER
       .addCase(editUser.fulfilled, (state, { payload }) => {
         if (payload?.user) {
+          console.log('EDIT USER payload.user:', payload.user);
           state.user = {
             ...state.user,
             ...payload.user,
-            avatar_url: payload.user.avatar_url,
+            profileImage: payload.user.profileImage,
           };
         }
         state.isLoggedIn = true;
