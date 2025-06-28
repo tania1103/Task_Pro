@@ -90,12 +90,12 @@ export const authSlice = createSlice({
 
       // ✅ EDIT USER
       .addCase(editUser.fulfilled, (state, { payload }) => {
-        if (payload?.user) {
-          console.log('EDIT USER payload.user:', payload.user);
+        if (payload?.data?.profileImage) {
+          console.log('EDIT USER payload.user:', payload.data.profileImage);
           state.user = {
             ...state.user,
-            ...payload.user,
-            profileImage: payload.user.profileImage,
+            // ...payload.user,
+            profileImage: payload.data.profileImage,
           };
         }
         state.isLoggedIn = true;

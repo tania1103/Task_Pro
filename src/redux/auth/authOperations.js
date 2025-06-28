@@ -132,17 +132,18 @@ export const editUser = createAsyncThunk(
   'user/editUser',
   async (dataUser, thunkAPI) => {
     const formData = new FormData();
-    const { profileImage, name, email, password } = dataUser;
+    // const { profileImage, name, email, password } = dataUser;
+    const { profileImage } = dataUser;
 
     if (profileImage instanceof File) {
-      formData.append('profileImage', profileImage);
+      formData.append('avatar', profileImage);
     }
 
-    formData.append('name', name);
-    formData.append('email', email);
-    if (password) {
-      formData.append('password', password);
-    }
+    // formData.append('name', name);
+    // formData.append('email', email);
+    // if (password) {
+    //   formData.append('password', password);
+    // }
 
     try {
       const { data } = await axiosInstance.patch(
@@ -152,6 +153,7 @@ export const editUser = createAsyncThunk(
           headers: { 'Content-Type': 'multipart/form-data' },
         }
       );
+      console.log('data user: ', data);
 
       return data;
     } catch (error) {

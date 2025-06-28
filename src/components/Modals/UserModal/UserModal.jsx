@@ -83,10 +83,11 @@ const UserModal = ({ onClose }) => {
   function editProfile(event) {
     event.preventDefault();
 
-    const user = { profileImage, name, email, password };
-    if (!password) {
-      user.password = undefined;
-    }
+    // const user = { profileImage, name, email, password };
+    const user = { profileImage };
+    // if (!password) {
+    //   user.password = undefined;
+    // }
 
     editUserSchema
       .validate(user)
