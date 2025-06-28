@@ -1,5 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { axiosInstance, ENDPOINTS } from 'api';
+import  axiosInstance  from 'api/axiosInstance';
+import ENDPOINTS  from 'api/endpoints';
 
 export const addColumn = createAsyncThunk(
   'columns/addColumn',

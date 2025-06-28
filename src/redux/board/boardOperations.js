@@ -1,4 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
+
 import axiosInstance from 'api/axiosInstance';
 import ENDPOINTS from 'api/endpoints';
 
