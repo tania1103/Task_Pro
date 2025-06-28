@@ -4,7 +4,8 @@ import {
   logIn,
   logOut,
   refreshUser,
-  editUser,
+  editUserAvatar,
+  editUserInfo,
 } from './authOperations';
 import { handlePending, handleRejected } from '../helpers';
 
@@ -27,7 +28,8 @@ export const authSlice = createSlice({
       .addCase(register.pending, handlePending)
       .addCase(logIn.pending, handlePending)
       .addCase(logOut.pending, handlePending)
-      .addCase(editUser.pending, handlePending)
+      .addCase(editUserAvatar.pending, handlePending)
+      .addCase(editUserInfo.pending, handlePending)
       .addCase(refreshUser.pending, state => {
         state.isLoading = true;
         state.isRefreshing = true;
@@ -78,7 +80,8 @@ export const authSlice = createSlice({
           return;
         }
 
-        state.user = payload.user; // ✅ extragem doar userul
+        state.user = payload; // ✅ extragem doar userul
+        console.log('✅ REFRESH user:', state.user);
         state.token = tokenFromLocalStorage;
         state.refreshToken =
           payload.refreshToken || localStorage.getItem('refreshToken');
@@ -87,13 +90,27 @@ export const authSlice = createSlice({
         state.isLoading = false;
       })
 
-      // ✅ EDIT USER
-      .addCase(editUser.fulfilled, (state, { payload }) => {
-        if (payload?.user) {
+      // ✅ EDIT USER AVATAR
+      .addCase(editUserAvatar.fulfilled, (state, { payload }) => {
+        if (payload?.profileImage) {
           state.user = {
             ...state.user,
-            ...payload.user,
-            avatar_url: payload.user.avatar_url,
+            // ...payload.user,
+            profileImage: payload.profileImage,
+          };
+        }
+        state.isLoggedIn = true;
+        state.isLoading = false;
+      })
+
+      // ✅ EDIT USER INFO
+      .addCase(editUserInfo.fulfilled, (state, { payload }) => {
+        if (payload) {
+          // If backend returns updated user:
+          state.user = {
+            ...state.user,
+            name: payload.data.name,
+            email: payload.data.email,
           };
         }
         state.isLoggedIn = true;
@@ -104,7 +121,8 @@ export const authSlice = createSlice({
       .addCase(register.rejected, handleRejected)
       .addCase(logIn.rejected, handleRejected)
       .addCase(logOut.rejected, handleRejected)
-      .addCase(editUser.rejected, handleRejected)
+      .addCase(editUserAvatar.rejected, handleRejected)
+      .addCase(editUserInfo.rejected, handleRejected)
       .addCase(refreshUser.rejected, (state, { payload }) => {
         state.isRefreshing = false;
         state.isLoading = false;

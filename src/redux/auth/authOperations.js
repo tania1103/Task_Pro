@@ -85,23 +85,21 @@ export const logOut = createAsyncThunk('auth/logout', async (_, thunkAPI) => {
   }
 
   try {
-    await axiosInstance.post(ENDPOINTS.auth.logout, { refreshToken });
+    await axiosInstance.post(ENDPOINTS.auth.logout, {
+      refreshToken,
+    });
 
-    localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     unsetAuthorizationHeader();
   } catch (error) {
-    toast.error(
-      error.response?.data?.message || 'Logout failed',
-      TOASTER_CONFIG
-    );
+    toast.error(error.response.data.message, TOASTER_CONFIG);
     return thunkAPI.rejectWithValue(error.message);
   }
 });
 
 // 🔄 REFRESH USER
 export const refreshUser = createAsyncThunk(
-  'auth/current',
+  'auth/profile',
   async (_, thunkAPI) => {
     try {
       const refreshToken = localStorage.getItem('refreshToken');
@@ -130,31 +128,44 @@ export const refreshUser = createAsyncThunk(
 );
 
 // ✏️ EDIT USER
-export const editUser = createAsyncThunk(
+export const editUserAvatar = createAsyncThunk(
   'user/editUser',
   async (dataUser, thunkAPI) => {
     const formData = new FormData();
-    const { avatar_url, name, email, password } = dataUser;
+    const { profileImage } = dataUser;
 
-    if (avatar_url instanceof File) {
-      formData.append('avatar_url', avatar_url);
-    }
-
-    formData.append('name', name);
-    formData.append('email', email);
-    if (password) {
-      formData.append('password', password);
+    if (profileImage instanceof File) {
+      formData.append('avatar', profileImage);
     }
 
     try {
       const { data } = await axiosInstance.patch(
-        ENDPOINTS.users.current,
+        ENDPOINTS.users.avatar,
         formData,
         {
           headers: { 'Content-Type': 'multipart/form-data' },
         }
       );
 
+      return data;
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || 'Update failed',
+        TOASTER_CONFIG
+      );
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const editUserInfo = createAsyncThunk(
+  'user/editUserInfo',
+  async ({ name, email }, thunkAPI) => {
+    try {
+      const { data } = await axiosInstance.put(
+        ENDPOINTS.users.profile, // asigură-te că acesta e endpointul corect
+        { name, email }
+      );
       return data;
     } catch (error) {
       toast.error(

@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { useSelector, useDispatch } from 'react-redux';
-import { editUser } from '../../../redux/auth/authOperations';
 import {
+  editUserAvatar,
+  editUserInfo,
+} from '../../../redux/auth/authOperations';
+import {
+  selectUser,
   selectUsername,
   selectUserEmail,
   selectUserAvatar,
@@ -34,16 +38,32 @@ const UserModal = ({ onClose }) => {
   const { t } = useTranslation();
 
   const [visible, setVisible] = useState(false);
-  const [avatar_url, setAvatar_url] = useState(useSelector(selectUserAvatar));
+  const reduxProfileImage = useSelector(selectUserAvatar);
+  // Eliminăm useState pentru profileImage, folosind direct reduxProfileImage
+  const [profileImage, setprofileImage] = useState(reduxProfileImage);
+  // Folosim reduxProfileImage pentru a actualiza profileImage la montare
   const [name, setName] = useState(useSelector(selectUsername));
   const [email, setEmail] = useState(useSelector(selectUserEmail));
   const [password, setPassword] = useState('');
   const [preview, setPreview] = useState(null);
   const [errorMsgShown, setErrorMsgShown] = useState(false);
   const [errorClassName, setErrorClassName] = useState('');
+  const user = useSelector(selectUser);
+
+  useEffect(() => {
+    setprofileImage(reduxProfileImage);
+  }, [reduxProfileImage]);
+
+  // Update name and email when user changes info
+  useEffect(() => {
+    if (user) {
+      setName(user.name || '');
+      setEmail(user.email || '');
+    }
+  }, [user]);
 
   function changeImg(event) {
-    setAvatar_url(event.target.files[0]);
+    setprofileImage(event.target.files[0]);
     const file = new FileReader();
     file.onload = function () {
       setPreview(file.result);
@@ -76,15 +96,19 @@ const UserModal = ({ onClose }) => {
   function editProfile(event) {
     event.preventDefault();
 
-    const user = { avatar_url, name, email, password };
-    if (!password) {
-      user.password = undefined;
-    }
+    const info = { name, email };
+    if (password) info.password = password;
 
     editUserSchema
-      .validate(user)
+      .validate({ ...info })
       .then(valid => {
-        dispatch(editUser(user));
+        // If profileImage was changed, dispatch editUserAvatar
+        if (profileImage instanceof File) {
+          dispatch(editUserAvatar({ profileImage }));
+        }
+
+        dispatch(editUserInfo(info));
+
         toast(t('editUser.toast.editUserSuccess'), TOASTER_CONFIG);
         onClose();
       })
@@ -92,15 +116,19 @@ const UserModal = ({ onClose }) => {
         toast(error.message, TOASTER_CONFIG);
       });
   }
+
   return (
     <div>
       <h3>{t('editUser.title')}</h3>
       <FormUser onSubmit={editProfile}>
         <Avatar>
           <AvatarEdit>
-            {avatar_url !== 'default' ? (
+            {profileImage !== 'default' ? (
               <img
-                src={preview || avatar_url}
+                src={
+                  preview ||
+                  (typeof profileImage === 'string' ? profileImage : '')
+                }
                 alt="avatar"
                 style={{ width: 68, height: 68, objectFit: 'cover' }}
               />

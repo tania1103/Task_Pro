@@ -1,7 +1,8 @@
 import axios from 'axios';
 import ENDPOINTS from './endpoints';
 
-const baseURL = process.env.REACT_APP_API_URL || 'https://task-pro-backend-5kph.onrender.com';
+const baseURL =
+  process.env.REACT_APP_API_URL || 'https://task-pro-backend-5kph.onrender.com';
 
 const axiosInstance = axios.create({ baseURL, withCredentials: true });
 

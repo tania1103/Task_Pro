@@ -14,7 +14,7 @@ import SmallLoader from 'components/Loader/SmallLoader/SmallLoader';
 const Profile = () => {
   const [shownModal, setShownModal] = useState(false);
   const nameUser = useSelector(selectUsername);
-  const avatar = useSelector(selectUserAvatar);
+  const avatar = useSelector(selectUserAvatar) ?? 'default';
   const isLoading = useSelector(selectIsLoading);
 
   return (
