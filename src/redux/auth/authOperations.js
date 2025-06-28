@@ -14,7 +14,7 @@ const unsetAuthorizationHeader = () => {
 
 // 🟢 REGISTER
 export const register = createAsyncThunk(
-  'api/auth/register',
+  'auth/register',
   async (credentials, thunkAPI) => {
     try {
       const { data } = await axiosInstance.post(
@@ -99,7 +99,7 @@ export const logOut = createAsyncThunk('auth/logout', async (_, thunkAPI) => {
 
 // 🔄 REFRESH USER
 export const refreshUser = createAsyncThunk(
-  'api/auth/profile',
+  'auth/profile',
   async (_, thunkAPI) => {
     try {
       const refreshToken = localStorage.getItem('refreshToken');
