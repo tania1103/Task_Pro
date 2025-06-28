@@ -14,7 +14,7 @@ import LogOut from 'components/Icons/LogOut';
 import BoardModal from 'components/Modals/BoardModal/BoardModal';
 import NeedHelp from 'components/Sidebar/NeedHelp';
 import Plus from 'components/Icons/Plus';
-import AddedBoard from '../AddedBoard';
+import AddedBoard from '../AddedBoard/AddedBoard';
 // import DevModal from 'components/Modals/DevModal/DevModal';
 // import SwiperDevModal from 'components/Modals/DevModal/SwiperDevModal';
 import SearchBoardModal from 'components/Modals/SearchBoardModal';
