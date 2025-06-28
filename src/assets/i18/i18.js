@@ -13,8 +13,8 @@ const i18n = use(Backend)
       en: {
         translation: require('./locales/en/translation.json'),
       },
-      uk: {
-        translation: require('./locales/uk/translation.json'),
+      ro: {
+        translation: require('./locales/ro/translation.json'),
       },
     },
     detection: {
