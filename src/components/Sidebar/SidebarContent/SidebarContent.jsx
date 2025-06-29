@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { logOut } from '../../../redux/auth/authOperations';
@@ -15,8 +15,6 @@ import BoardModal from 'components/Modals/BoardModal/BoardModal';
 import NeedHelp from 'components/Sidebar/NeedHelp';
 import Plus from 'components/Icons/Plus';
 import AddedBoard from '../AddedBoard/AddedBoard';
-// import DevModal from 'components/Modals/DevModal/DevModal';
-// import SwiperDevModal from 'components/Modals/DevModal/SwiperDevModal';
 import SearchBoardModal from 'components/Modals/SearchBoardModal';
 import Search from 'components/Icons/Search';
 import { BsBarChartLine } from 'react-icons/bs';
@@ -41,7 +39,6 @@ import {
   BoardsWrap,
   MyBoard,
   SearchButton,
-  // DevsBtn,
   StatsLink,
   ExtraLink,
 } from './SidebarContent.styled';
@@ -49,15 +46,15 @@ import {
 const SidebarContent = ({ menu, closeMenu }) => {
   const [isAddBoardModalShown, setIsAddBoardModalShown] = useState(false);
   const [isEditBoardModalShown, setIsEditBoardModalShown] = useState(false);
-  // const [isDevModalOpen, setIsDevModalOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-  // const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [showSearchResult, setShowSearchResult] = useState(false);
 
   const dispatch = useDispatch();
   const { t } = useTranslation();
-  const searchValue = useSelector(selectBoardSearch);
-  const allBoards = useSelector(selectBoards);
+  const searchValue = useSelector(selectBoardSearch) ?? '';
+  const rawBoards = useSelector(selectBoards);
+  const allBoards = useMemo(() => rawBoards ?? [], [rawBoards]);
+
   const currentBoard = useSelector(selectOneBoard);
   const boardsContainer = useRef(null);
 
@@ -81,23 +78,19 @@ const SidebarContent = ({ menu, closeMenu }) => {
       boardsContainer.current.scrollHeight * heightToScroll;
   }, [allBoards, currentBoard]);
 
-  // useEffect(() => {
-  //   const handleResize = () => {
-  //     setWindowWidth(window.innerWidth);
-  //   };
-
-  //   window.addEventListener('resize', handleResize);
-
-  //   return () => {
-  //     window.removeEventListener('resize', handleResize);
-  //   };
-  // }, []);
+  useEffect(() => {
+    if (searchValue && allBoards.length > 0) {
+      dispatch(boardSearch(''));
+      setShowSearchResult(false);
+    }
+  }, [dispatch, allBoards, searchValue]);
 
   const handleSubmit = event => {
     event.preventDefault();
     const { search } = event.target.elements;
 
-    dispatch(boardSearch(search.value.trim().toLowerCase()));
+    const value = search.value.trim().toLowerCase();
+    dispatch(boardSearch(value));
     setShowSearchResult(true);
     setIsSearchModalOpen(false);
   };
@@ -107,11 +100,12 @@ const SidebarContent = ({ menu, closeMenu }) => {
     localStorage.removeItem('app-them');
   };
 
-  const filteredBoards = Array.isArray(allBoards)
-    ? allBoards.filter(({ title }) =>
-        title?.toLowerCase().trim().includes(searchValue)
-      )
-    : [];
+  const filteredBoards = allBoards.filter(({ title }) =>
+    title?.toLowerCase().includes(searchValue)
+  );
+
+  const boardsToRender =
+    searchValue && showSearchResult ? filteredBoards : allBoards;
 
   return (
     <Container>
@@ -124,28 +118,17 @@ const SidebarContent = ({ menu, closeMenu }) => {
               fillColor={'var(--sidebar-lightning-fill)'}
             />
           </LightningBox>
-          <p>Task Pro</p>{' '}
-          <StatsLink to={'stats'} aria-label="To Statistics">
+          <p>Task Pro</p>
+          <StatsLink to="stats" aria-label="To Statistics">
             <BsBarChartLine size={20} />
           </StatsLink>
-          <ExtraLink to={'schedule'} aria-label="To Schedule">
+          <ExtraLink to="schedule" aria-label="To Schedule">
             <IoCalendarOutline size={20} />
           </ExtraLink>
         </Logo>
 
-        {/* <DevsBtn
-          type="button"
-          aria-label="Open developers modal"
-          onClick={() => setIsDevModalOpen(true)}
-        >
-          © {t('developersModal.text')}
-        </DevsBtn> */}
-
         <BoardsWrap>
-          <MyBoard>{`${t('sidebar.boards')}: ${
-            Array.isArray(allBoards) ? allBoards.length : 0
-          }`}</MyBoard>
-
+          <MyBoard>{`${t('sidebar.boards')}: ${allBoards.length}`}</MyBoard>
           <SearchButton
             type="button"
             onClick={() => setIsSearchModalOpen(true)}
@@ -168,7 +151,7 @@ const SidebarContent = ({ menu, closeMenu }) => {
         <BoardContainer ref={boardsContainer}>
           {showSearchResult && (
             <SearchResultWrap>
-              <p>{`${t('sidebar.search')}: ${filteredBoards.length}`} </p>
+              <p>{`${t('sidebar.search')}: ${filteredBoards.length}`}</p>
               <button
                 aria-label="show all boards"
                 type="button"
@@ -181,7 +164,8 @@ const SidebarContent = ({ menu, closeMenu }) => {
               </button>
             </SearchResultWrap>
           )}
-          {filteredBoards.map(board => (
+
+          {boardsToRender.map(board => (
             <BoardLink key={board._id} to={`/home/board/${board._id}`}>
               <AddedBoard
                 allBoards={allBoards}
@@ -201,7 +185,6 @@ const SidebarContent = ({ menu, closeMenu }) => {
             <HelpSpan>TaskPro</HelpSpan>
             {t('sidebar.helpText2')}
           </HelpText>
-
           <NeedHelp />
         </HelpContainer>
 
@@ -229,25 +212,12 @@ const SidebarContent = ({ menu, closeMenu }) => {
           closeModal={() => setIsEditBoardModalShown(false)}
         />
       )}
-
       {isSearchModalOpen && (
         <SearchBoardModal
           onClose={() => setIsSearchModalOpen(false)}
           handleSubmit={handleSubmit}
         />
       )}
-
-      {/* {windowWidth < 768 ? (
-        <SwiperDevModal
-          isOpen={isDevModalOpen}
-          onClose={() => setIsDevModalOpen(false)}
-        />
-      ) : (
-        <DevModal
-          isOpen={isDevModalOpen}
-          onClose={() => setIsDevModalOpen(false)}
-        />
-      )} */}
     </Container>
   );
 };

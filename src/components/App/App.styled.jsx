@@ -6,9 +6,8 @@ export const MainContainer = styled.div`
   padding: 14px 10px 24px 10px;
   background: ${({ $bg }) =>
     $bg
-      ? `center / cover no-repeat
-    url(${$bg.backgroundMobileURL})`
-      : 'unset'};
+      ? `center / cover no-repeat url(${$bg.backgroundMobileURL})`
+      : 'var(--default-bg-color)'};
 
   @media screen and (min-width: 375px) {
     padding: 14px 20px 24px 20px;
@@ -17,9 +16,8 @@ export const MainContainer = styled.div`
   @media screen and (-webkit-min-device-pixel-ratio: 2) {
     background: ${({ $bg }) =>
       $bg
-        ? `center / cover no-repeat
-    url(${$bg.backgroundMobile2xURL})`
-        : 'unset'};
+        ? `center / cover no-repeat url(${$bg.backgroundMobile2xURL})`
+        : 'var(--default-bg-color)'};
   }
 
   @media screen and (min-width: 768px) {
@@ -27,17 +25,15 @@ export const MainContainer = styled.div`
     height: calc(100vh - 68px);
     background: ${({ $bg }) =>
       $bg
-        ? `center / cover no-repeat
-    url(${$bg.backgroundTabletURL})`
-        : 'unset'};
+        ? `center / cover no-repeat url(${$bg.backgroundTabletURL})`
+        : 'var(--default-bg-color)'};
   }
 
   @media screen and (min-width: 768px) and (-webkit-min-device-pixel-ratio: 2) {
     background: ${({ $bg }) =>
       $bg
-        ? `center / cover no-repeat
-    url(${$bg.backgroundTablet2xURL})`
-        : 'unset'};
+        ? `center / cover no-repeat url(${$bg.backgroundTablet2xURL})`
+        : 'var(--default-bg-color)'};
   }
 
   @media screen and (min-width: 1440px) {
@@ -45,16 +41,14 @@ export const MainContainer = styled.div`
     padding: 10px 24px 36px 24px;
     background: ${({ $bg }) =>
       $bg
-        ? `center / cover no-repeat
-    url(${$bg.backgroundDesktopURL})`
-        : 'unset'};
+        ? `center / cover no-repeat url(${$bg.backgroundDesktopURL})`
+        : 'var(--default-bg-color)'};
   }
 
   @media screen and (min-width: 1440px) and (-webkit-min-device-pixel-ratio: 2) {
     background: ${({ $bg }) =>
       $bg
-        ? `center / cover no-repeat
-    url(${$bg.backgroundDesktop2xURL})`
-        : 'unset'};
+        ? `center / cover no-repeat url(${$bg.backgroundDesktop2xURL})`
+        : 'var(--default-bg-color)'};
   }
 `;

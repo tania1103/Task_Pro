@@ -10,6 +10,8 @@ import {
   REGISTER,
 } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
+
+// Reducers
 import { authReducer } from './auth/authSlice';
 import { boardsReducer } from './board/boardSlice';
 import { themeReducer } from './theme/themeSlice';
@@ -25,7 +27,7 @@ const authPersistConfig = {
 export const store = configureStore({
   reducer: {
     auth: persistReducer(authPersistConfig, authReducer),
-    boards: boardsReducer,
+    board: boardsReducer, // ✅ corect și aliniat cu slice-ul
     theme: themeReducer,
     support: supportReducer,
     search: boardSearchReducer,
@@ -36,6 +38,7 @@ export const store = configureStore({
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
     }),
+  devTools: process.env.NODE_ENV !== 'production',
 });
 
 export const persistor = persistStore(store);

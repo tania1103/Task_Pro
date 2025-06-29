@@ -11,7 +11,9 @@ const SidebarMenu = ({ isMenuOpen, closeMenu }) => {
 
     window.addEventListener('keydown', onEscClose);
 
-    return window.removeEventListener('keydown', onEscClose);
+    return () => {
+      window.removeEventListener('keydown', onEscClose);
+    };
   }, [closeMenu]);
 
   const onBackdropClose = ({ target, currentTarget }) => {

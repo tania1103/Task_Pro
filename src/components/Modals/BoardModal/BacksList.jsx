@@ -1,72 +1,63 @@
-import { useDispatch, useSelector } from 'react-redux';
-import { useEffect, useState } from 'react';
-import sprite from 'assets/images/icons/icons-sprite.svg';
-import { getBackgroundIcons } from '../../../redux/board/boardOperations';
-import SmallLoader from 'components/Loader/SmallLoader';
-import {
-  selectBackgroundIcons,
-  selectIsLoading,
-} from '../../../redux/board/boardSelectors';
-import {
-  BacksUl,
-  DefaultImgWrap,
-  BackInputRadio,
-  BackImage,
-  SmallLoaderContainer,
-} from './BoardModal.styled';
+import { useState, useEffect } from 'react';
+import backgrounds from 'images/background/backgrounds';
 
-export const BacksList = ({ backgroundId, customBackground }) => {
+import { BacksUl, BackInputRadio, BackImage } from './BoardModal.styled';
+
+export const BacksList = ({
+  backgroundId,
+  customBackground,
+  onSelectBackground,
+}) => {
   const [selectedBackId, setSelectedBackId] = useState(backgroundId);
-  const isLoading = useSelector(selectIsLoading);
-  const backgroundIcons = useSelector(selectBackgroundIcons);
-  const dispatch = useDispatch();
+  const [imageErrors, setImageErrors] = useState({});
 
   useEffect(() => {
-    dispatch(getBackgroundIcons());
-  }, [dispatch]);
+    setSelectedBackId(backgroundId);
+  }, [backgroundId]);
 
-  const handleBackChange = id => {
+  const handleBackChange = e => {
+    const id = Number(e.target.value);
     setSelectedBackId(id);
+    if (onSelectBackground) onSelectBackground(id);
   };
 
-  return isLoading ? (
-    <SmallLoaderContainer>
-      <SmallLoader width="20" height="20" />
-    </SmallLoaderContainer>
-  ) : (
+  const handleImageError = id => {
+    setImageErrors(prev => ({ ...prev, [id]: true }));
+  };
+
+  return (
     <BacksUl>
-      {backgroundIcons.map(item => {
-        return (
-          <li key={item._id} id={item.backgroundMinURL ? '' : 'default-bg-img'}>
-            <label>
-              <BackInputRadio
-                type="radio"
-                name="background"
-                value={item._id}
-                defaultChecked={
-                  customBackground ? false : selectedBackId === item._id
-                }
-                onChange={() => handleBackChange(item._id)}
-              />
-              {item.backgroundMinURL ? (
-                <BackImage
-                  src={item.backgroundMinURL}
-                  srcSet={`${item.backgroundMinURL} 1x, ${item.backgroundMin2xURL} 2x`}
-                  alt="background miniature"
-                  width={28}
-                  height={28}
-                />
-              ) : (
-                <DefaultImgWrap>
-                  <svg width={16} height={16}>
-                    <use href={`${sprite}#icon-default-bg`}></use>
-                  </svg>
-                </DefaultImgWrap>
-              )}
-            </label>
-          </li>
-        );
-      })}
+      {backgrounds.map(bg => (
+        <li key={bg.id}>
+          <label
+            title={`Background ${bg.id}`}
+            aria-label={`Select background ${bg.id}`}
+          >
+            <BackInputRadio
+              type="radio"
+              name="background" // 👈 necesar pentru FormData
+              value={`${bg.id}`} // 👈 valoare ca string
+              checked={!customBackground && selectedBackId === bg.id}
+              onChange={handleBackChange}
+            />
+            <BackImage
+              src={
+                imageErrors[bg.id]
+                  ? 'https://via.placeholder.com/28?text=🚫'
+                  : bg.min
+              }
+              alt={
+                imageErrors[bg.id]
+                  ? `Background ${bg.id} unavailable`
+                  : `Background preview ${bg.id}`
+              }
+              width={28}
+              height={28}
+              onError={() => handleImageError(bg.id)}
+            />
+          </label>
+        </li>
+      ))}
     </BacksUl>
   );
 };

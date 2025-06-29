@@ -2,98 +2,121 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import axiosInstance from 'api/axiosInstance';
 import ENDPOINTS from 'api/endpoints';
 
-export const getBackgroundIcons = createAsyncThunk(
-  'boards/getBackgroundIcons',
-  async (_, thunkAPI) => {
-    try {
-      const { data } = await axiosInstance.get(ENDPOINTS.backgrounds);
-      return data.backgrounds;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.message);
-    }
-  }
-);
-
+// ✅ GET: Toate boardurile
 export const getAllBoards = createAsyncThunk(
   'boards/getAllBoards',
   async (_, thunkAPI) => {
     try {
       const { data } = await axiosInstance.get(ENDPOINTS.boards.allBoards);
-      return data.boards;
+      console.log('✅ Răspuns getAllBoards:', data);
+
+      return Array.isArray(data.boards) ? data.boards : data.data || data || [];
     } catch (error) {
+      console.error('❌ getAllBoards error:', error);
       return thunkAPI.rejectWithValue(error.message);
     }
   }
 );
 
+// ✅ POST: Creează board (JSON simplu)
 export const createBoard = createAsyncThunk(
   'boards/createBoard',
-  async (newBoard, thunkAPI) => {
+  async ({ title, icon, background }, thunkAPI) => {
     try {
-      const formData = new FormData();
-      const { title, iconId, background } = newBoard;
-      formData.append('title', title);
-      formData.append('iconId', iconId);
+      const { data } = await axiosInstance.post(ENDPOINTS.boards.allBoards, {
+        title,
+        icon,
+        background,
+      });
 
-      !background.type?.startsWith('image')
-        ? formData.append('backgroundId', background)
-        : formData.append('background', background);
+      const board = data?.data || data;
 
-      const { data } = await axiosInstance.post(
-        ENDPOINTS.boards.allBoards,
-        formData,
-        { headers: { 'Content-Type': 'multipart/form-data' } }
-      );
+      if (!board || !board._id) {
+        throw new Error('Board creation succeeded but missing _id');
+      }
 
-      return data.board;
+      return { data: board };
     } catch (error) {
+      console.error('❌ createBoard error:', error);
+
+      if (error.response?.data) {
+        console.warn('⚠️ Backend response:', error.response.data);
+      }
+
       return thunkAPI.rejectWithValue(error.message);
     }
   }
 );
 
+// ✅ PATCH: Upload imagine fundal custom (FormData)
+export const uploadCustomBackground = createAsyncThunk(
+  'boards/uploadCustomBackground',
+  async ({ boardId, imageFile }, thunkAPI) => {
+    try {
+      const formData = new FormData();
+      formData.append('image', imageFile);
+
+      const { data } = await axiosInstance.patch(
+        `/api/boards/${boardId}/background`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      return { data: data.data }; // standardizează
+    } catch (error) {
+      console.error('❌ uploadCustomBackground error:', error);
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+// ✅ PUT: Actualizare board (titlu, icon, bg presetat)
 export const updateBoard = createAsyncThunk(
   'boards/updateBoard',
   async ({ boardId, dataUpdate }, thunkAPI) => {
     try {
-      const formData = new FormData();
-      const { title, iconId, background } = dataUpdate;
-      formData.append('title', title);
-      formData.append('iconId', iconId);
+      const payload =
+        dataUpdate instanceof FormData ? dataUpdate : { ...dataUpdate };
 
-      if (background !== 'on') {
-        !background.type?.startsWith('image')
-          ? formData.append('backgroundId', background)
-          : formData.append('background', background);
-      }
-
-      const { data } = await axiosInstance.patch(
+      const { data } = await axiosInstance.put(
         ENDPOINTS.boards.oneBoard(boardId),
-        formData,
-        { headers: { 'Content-Type': 'multipart/form-data' } }
+        payload,
+        {
+          headers:
+            dataUpdate instanceof FormData
+              ? { 'Content-Type': 'multipart/form-data' }
+              : {},
+        }
       );
 
-      return data.board;
+      const board = data?.data || data;
+
+      return { data: board };
     } catch (error) {
+      console.error('❌ updateBoard error:', error);
       return thunkAPI.rejectWithValue(error.message);
     }
   }
 );
 
+// ✅ DELETE: Șterge board
 export const deleteBoard = createAsyncThunk(
   'boards/deleteBoard',
   async (boardId, thunkAPI) => {
     try {
-      const { data } = await axiosInstance.delete(
-        ENDPOINTS.boards.oneBoard(boardId)
-      );
-      return data;
+      await axiosInstance.delete(ENDPOINTS.boards.oneBoard(boardId));
+      return boardId;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
   }
 );
 
+// ✅ GET: Un singur board complet
 export const getOneBoard = createAsyncThunk(
   'boards/getOneBoard',
   async (boardId, thunkAPI) => {
@@ -102,8 +125,15 @@ export const getOneBoard = createAsyncThunk(
         ENDPOINTS.boards.oneBoard(boardId)
       );
 
-      return data.board[0];
+      const board = data?.data || data;
+
+      if (!board || !board._id) {
+        return thunkAPI.rejectWithValue('Board not found');
+      }
+
+      return { data: board };
     } catch (error) {
+      console.error('❌ getOneBoard error:', error);
       return thunkAPI.rejectWithValue(error.message);
     }
   }

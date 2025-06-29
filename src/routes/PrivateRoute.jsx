@@ -1,9 +1,10 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from 'hooks';
+import Loader from 'components/Loader';
 
-export const PrivateRoute = ({ component: Component, redirectTo }) => {
+export const PrivateRoute = ({ children, redirectTo }) => {
   const { isLoggedIn, isRefreshing } = useAuth();
 
-  const shouldRedirect = !isLoggedIn && !isRefreshing;
-  return shouldRedirect ? <Navigate to={redirectTo} /> : Component;
+  if (isRefreshing) return <Loader />;
+  return isLoggedIn ? children : <Navigate to={redirectTo} />;
 };
