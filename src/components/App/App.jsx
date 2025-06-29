@@ -1,44 +1,64 @@
 import { Suspense, lazy, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { useAuth } from 'hooks';
 import { Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+
+import { useAuth } from 'hooks';
 import { refreshUser } from '../../redux/auth/authOperations';
+import { getTheme } from '../../redux/theme/themeOperation';
+import { getAllBoards } from '../../redux/board/boardOperations';
+
 import { PrivateRoute } from '../../routes/PrivateRoute';
 import { PublicRoute } from '../../routes/PublicRoute';
+
 import SharedLayout from 'layouts/SharedLayout';
 import Loader from 'components/Loader/Loader';
-import { getTheme } from '../../redux/theme/themeOperation';
 
 const WelcomePage = lazy(() => import('pages/WelcomePage'));
 const AuthPage = lazy(() => import('pages/AuthPage'));
 const HomePage = lazy(() => import('pages/HomePage'));
 const ScreensPage = lazy(() => import('pages/ScreensPage'));
-const NotFoundPage = lazy(() => import('pages/NotFoundPage'));
 const StatsPage = lazy(() => import('pages/StatsPage'));
 const SchedulePage = lazy(() => import('pages/SchedulePage'));
+const NotFoundPage = lazy(() => import('pages/NotFoundPage'));
 
 const App = () => {
   const dispatch = useDispatch();
-  const { isRefreshing } = useAuth();
+  const { isLoggedIn, isRefreshing } = useAuth();
 
   useEffect(() => {
     const accessToken = localStorage.getItem('accessToken');
     const refreshToken = localStorage.getItem('refreshToken');
 
-    // ✅ Apelăm refreshUser DOAR dacă avem ambele tokenuri
+    console.log('🔍 App init:', { accessToken, refreshToken });
+
     if (accessToken && refreshToken) {
-      dispatch(refreshUser()).then(() => {
-        dispatch(getTheme());
+      dispatch(refreshUser()).then(action => {
+        console.log('🔄 refreshUser result:', action);
+
+        if (action.type === 'auth/refreshUser/fulfilled') {
+          dispatch(getTheme());
+          dispatch(getAllBoards()); // <== trebuie să se vadă în consolă!
+        } else {
+          console.warn('❌ Eșec la refreshUser');
+        }
       });
     } else {
-      console.warn('🔁 Skip refreshUser: lipsesc tokenurile din localStorage');
+      console.warn('⚠️ Lipsesc tokenurile. Nu s-a apelat refreshUser.');
     }
   }, [dispatch]);
 
-  return isRefreshing ? (
-    <Loader strokeColor="#fff" />
-  ) : (
+  // fallback în caz că utilizatorul este deja logat
+  useEffect(() => {
+    if (isLoggedIn) {
+      dispatch(getTheme());
+      dispatch(getAllBoards());
+    }
+  }, [dispatch, isLoggedIn]);
+
+  if (isRefreshing) return <Loader strokeColor="#fff" />;
+
+  return (
     <>
       <Toaster position="top-center" />
       <Suspense fallback={<Loader />}>
@@ -46,50 +66,51 @@ const App = () => {
           <Route
             path="/"
             element={
-              <PublicRoute component={<WelcomePage />} redirectTo="/home" />
+              <PublicRoute redirectTo="/home">
+                <WelcomePage />
+              </PublicRoute>
             }
           />
           <Route
             path="/auth/:id"
             element={
-              <PublicRoute component={<AuthPage />} redirectTo="/home" />
+              <PublicRoute redirectTo="/home">
+                <AuthPage />
+              </PublicRoute>
             }
           />
+
           <Route path="/home" element={<SharedLayout />}>
             <Route
               index
               element={
-                <PrivateRoute
-                  component={<HomePage />}
-                  redirectTo="/auth/login"
-                />
+                <PrivateRoute redirectTo="/auth/login">
+                  <HomePage />
+                </PrivateRoute>
               }
             />
             <Route
               path="board/:boardId"
               element={
-                <PrivateRoute
-                  component={<ScreensPage />}
-                  redirectTo="/auth/login"
-                />
+                <PrivateRoute redirectTo="/auth/login">
+                  <ScreensPage />
+                </PrivateRoute>
               }
             />
             <Route
               path="stats"
               element={
-                <PrivateRoute
-                  component={<StatsPage />}
-                  redirectTo="/auth/login"
-                />
+                <PrivateRoute redirectTo="/auth/login">
+                  <StatsPage />
+                </PrivateRoute>
               }
             />
             <Route
               path="schedule"
               element={
-                <PrivateRoute
-                  component={<SchedulePage />}
-                  redirectTo="/auth/login"
-                />
+                <PrivateRoute redirectTo="/auth/login">
+                  <SchedulePage />
+                </PrivateRoute>
               }
             />
           </Route>

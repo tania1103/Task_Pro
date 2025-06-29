@@ -6,6 +6,7 @@ import { ICONS_ARRAY } from 'constants';
 import sprite from 'assets/images/icons/icons-sprite.svg';
 import Pencil from 'components/Icons/Pencil';
 import Trash from 'components/Icons/Trash';
+
 import {
   BoardBoxInfo,
   ChangeBox,
@@ -13,17 +14,25 @@ import {
   NameBox,
 } from './AddedBoard.styled';
 import DeleteModal from 'components/Modals/DeleteModal/DeleteModal';
+import { getAllBoards } from '../../../redux/board/boardOperations';
 
 const AddedBoard = ({ board, openEditModal }) => {
-  const boardIcon = ICONS_ARRAY[board.icon_id];
   const [isDeleteModalShown, setIsDeleteModalShown] = useState(false);
-
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  if (!board) return null;
+
+  const boardIcon =
+    ICONS_ARRAY.find(icon => icon.value === board.icon) ?? ICONS_ARRAY[0];
+
   const handleBoardDelete = () => {
     dispatch(deleteBoard(board._id)).then(action => {
-      if (action.type === 'boards/deleteBoard/fulfilled') navigate('/');
+      if (action.type === 'boards/deleteBoard/fulfilled') {
+        // 🔄 Reîncarcă lista de boarduri
+        dispatch(getAllBoards());
+        navigate('/home');
+      }
     });
 
     setIsDeleteModalShown(false);
@@ -34,11 +43,11 @@ const AddedBoard = ({ board, openEditModal }) => {
       <BoardBoxInfo>
         <NameBox>
           <svg stroke={'var(--sidebar-icon-color)'} width={16} height={16}>
-            <use href={`${sprite}#${boardIcon.name}`}></use>
+            <use href={`${sprite}#${boardIcon.name}`} />
           </svg>
-
           <p>{board.title}</p>
         </NameBox>
+
         <ChangeBox id="change-container">
           <ChangeIcons
             type="button"
@@ -48,7 +57,7 @@ const AddedBoard = ({ board, openEditModal }) => {
             <Pencil
               width={16}
               height={16}
-              strokeColor={'var(--sidebar-change-color'}
+              strokeColor={'var(--sidebar-change-color)'}
             />
           </ChangeIcons>
           <ChangeIcons
@@ -59,7 +68,7 @@ const AddedBoard = ({ board, openEditModal }) => {
             <Trash
               width={16}
               height={16}
-              strokeColor={'var(--sidebar-change-color'}
+              strokeColor={'var(--sidebar-change-color)'}
             />
           </ChangeIcons>
         </ChangeBox>

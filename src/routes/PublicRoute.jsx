@@ -1,8 +1,8 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from 'hooks';
 
-export const PublicRoute = ({ component: Component, redirectTo = '/' }) => {
+export const PublicRoute = ({ children, redirectTo = '/' }) => {
   const { isLoggedIn } = useAuth();
 
-  return isLoggedIn ? <Navigate to={redirectTo} /> : Component;
+  return isLoggedIn ? <Navigate to={redirectTo} /> : children;
 };
