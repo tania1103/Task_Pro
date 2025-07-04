@@ -4,6 +4,8 @@ import { useParams, Navigate } from 'react-router-dom';
 
 import { getOneBoard } from '../redux/board/boardOperations';
 import { selectOneBoard, selectIsLoading } from '../redux/board/boardSelectors';
+import { getColumnsByBoard } from '../redux/columns/columnsOperations';
+import { getAllCards } from '../redux/cards/cardsOperations';
 
 import { MainContainer } from 'components/App/App.styled';
 import Dashboard from 'components/Dashboard';
@@ -53,10 +55,14 @@ const ScreensPage = () => {
   const board = useSelector(selectOneBoard);
   const isLoading = useSelector(selectIsLoading);
 
-  // ✅ Încarcă board-ul din backend
+  // ✅ Încarcă board-ul, coloanele și cardurile din backend - secvențial pentru a evita erorile
   useEffect(() => {
     if (boardId) {
-      dispatch(getOneBoard(boardId));
+      // Încărcăm secvențial pentru a ne asigura că avem date corecte
+      dispatch(getOneBoard(boardId))
+        .then(() => dispatch(getColumnsByBoard(boardId)))
+        .then(() => dispatch(getAllCards()))
+        .catch(err => console.error('❌ Eroare la încărcarea datelor:', err));
     }
   }, [dispatch, boardId]);
 

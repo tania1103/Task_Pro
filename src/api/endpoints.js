@@ -2,15 +2,19 @@ const ENDPOINTS = Object.freeze({
   auth: {
     register: '/api/auth/register',
     login: '/api/auth/login',
-    logout: '/api/auth/logout',
-    refreshToken: '/api/auth/refresh',
-    me: '/api/auth/me',
+    logout: '/api/auth/logout', //
+
+    refreshToken: '/api/auth/refresh', // POST
+    me: '/api/auth/me', // GET
+    google: '/api/auth/google', //get
+    callback: '/api/auth/google/callback' // GET
   },
 
   users: {
-    theme: '/api/users/theme',
-    avatar: '/api/users/avatar',
-    profile: '/api/users/profile',
+    theme: '/api/users/theme', //get/patch
+    avatar: '/api/users/avatar', //patch
+    profile: '/api/users/profile', //put
+    account: '/api/users/account', //delete
   },
 
   boards: {
@@ -21,16 +25,18 @@ const ENDPOINTS = Object.freeze({
   },
 
   columns: {
-    allColumns: '/api/columns', // GET/POST
+    allColumns: '/api/columns', //POST
+    allColumnsByBoard: boardId => `/api/columns/board/${boardId}`, //GET
     oneColumn: id => `/api/columns/${id}`, // GET/PUT/DELETE
+    reorderColumns: '/api/columns/reorder', // PATCH
   },
 
   cards: {
-    allCards: '/api/cards', // GET/POST
-    cardsStats: '/api/cards/stats', // GET
-    oneCard: id => `/api/cards/${id}`, // GET/PUT/DELETE
-    cardStatus: id => `/api/cards/${id}/status`, // PATCH
-    cardOrder: id => `/api/cards/${id}/order`, // PATCH
+    allCards: '/api/cards', // POST (doar pentru crearea cardurilor)
+    allCardsByColumn: columnId => `/api/cards/column/${columnId}`, // GET
+    oneCard: id => `/api/cards/${id}`, // GET/PATCH/DELETE
+    reorderCards: '/api/cards/reorder', // PATCH
+    moveCard: id => `/api/cards/${id}/move`, // PATCH
   },
 
   email: {

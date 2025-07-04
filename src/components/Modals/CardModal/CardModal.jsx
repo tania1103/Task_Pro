@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
@@ -47,12 +48,16 @@ const CardModal = ({ columnId, variant, closeCardModal, activeCard }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
-  const handleFormSubmit = e => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
     const { title, description } = e.target.elements;
 
-    if (!title.value.trim() || !description.value.trim()) {
-      return toast(t('cards.modals.toast.error'), TOASTER_CONFIG);
+    if (!title.value.trim()) {
+      return toast(t('cards.modals.toast.titleRequired'), TOASTER_CONFIG);
+    }
+
+    if (!description.value.trim()) {
+      return toast(t('cards.modals.toast.descriptionRequired'), TOASTER_CONFIG);
     }
 
     const dateForServer = makeValidDate(selectedDate);
@@ -61,24 +66,34 @@ const CardModal = ({ columnId, variant, closeCardModal, activeCard }) => {
       return toast(t('cards.modals.toast.invalidDate'), TOASTER_CONFIG);
     }
 
+    // Create card info with proper formatting for API
     const cardInfo = {
-      title: title.value,
-      description: description.value,
+      title: title.value.trim(),
+      description: description.value.trim(),
       priority: cardPriority,
       deadline: dateForServer,
       board: boardId,
       column: columnId,
     };
 
-    if (variant === 'add') {
-      dispatch(addCard(cardInfo));
-      toast(t('cards.modals.toast.add.success'), TOASTER_CONFIG);
-    } else {
-      dispatch(editCard({ cardId: activeCard._id, editedCard: cardInfo }));
-      toast(t('cards.modals.toast.edit.success'), TOASTER_CONFIG);
-    }
+    console.log('Prepared card data:', cardInfo);
 
-    closeCardModal();
+    try {
+      if (variant === 'add') {
+        await dispatch(addCard(cardInfo)).unwrap();
+        toast(t('cards.modals.toast.add.success'), TOASTER_CONFIG);
+      } else {
+        await dispatch(editCard({ cardId: activeCard._id, editedCard: cardInfo })).unwrap();
+        toast(t('cards.modals.toast.edit.success'), TOASTER_CONFIG);
+      }
+      closeCardModal();
+    } catch (error) {
+      console.error('Card operation failed:', error);
+      const errorMessage = typeof error === 'string'
+        ? error
+        : error?.message || t('cards.modals.toast.error');
+      toast(errorMessage, TOASTER_CONFIG);
+    }
   };
 
   const openDatePicker = () => {

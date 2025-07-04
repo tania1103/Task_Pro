@@ -17,6 +17,8 @@ import { boardsReducer } from './board/boardSlice';
 import { themeReducer } from './theme/themeSlice';
 import { supportReducer } from './support/supportSlice';
 import { boardSearchReducer } from './search/searchSlice';
+import { columnsReducer } from './columns/columnsSlice';
+import { cardsReducer } from './cards/cardsSlice';
 
 const authPersistConfig = {
   key: 'auth',
@@ -27,10 +29,12 @@ const authPersistConfig = {
 export const store = configureStore({
   reducer: {
     auth: persistReducer(authPersistConfig, authReducer),
-    board: boardsReducer, // ✅ corect și aliniat cu slice-ul
+    board: boardsReducer,
     theme: themeReducer,
     support: supportReducer,
     search: boardSearchReducer,
+    columns: columnsReducer,
+    cards: cardsReducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

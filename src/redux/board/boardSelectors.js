@@ -7,7 +7,7 @@ export const selectBoardsIsLoading = state =>
 
 export const selectOneBoard = state => selectBoardsState(state).oneBoard || {};
 
-export const selectStats = state => selectBoardsState(state).stats || {};
+export const selectStats = state => state.cards?.stats || {};
 
 export const selectAllCards = state => selectBoardsState(state).allCards || [];
 

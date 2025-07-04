@@ -7,6 +7,12 @@ export const ColumnWrap = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  opacity: ${props => (props.$isDragging ? 0.6 : 1)};
+  transform: ${props => (props.$isDragging ? 'scale(1.02)' : 'none')};
+  box-shadow: ${props => (props.$isDragging ? '0px 8px 16px rgba(0, 0, 0, 0.15)' : 'none')};
+  transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+  touch-action: none;
+  cursor: ${props => (props.$isDragging ? 'grabbing' : 'auto')};
 
   @media screen and (min-width: 375px) {
     width: 335px;
@@ -24,6 +30,13 @@ export const ColumnTitleWrap = styled.div`
   border-radius: 8px;
   background-color: var(--card-bg);
   font-weight: 500;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+
+  &:active {
+    cursor: grabbing;
+  }
 
   & h3 {
     font-size: 14px;

@@ -34,9 +34,16 @@ import {
 import CardModal from 'components/Modals/CardModal/CardModal';
 
 const TaskCard = ({ allColumns, columnId, card }) => {
+  // All hooks must be called at the top level before any conditional returns
   const [showFullText, setShowFullText] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditCardModalOpen, setIsEditCardModalOpen] = useState(false);
+
+  const { t } = useTranslation();
+  const dispatch = useDispatch();
+
+  // For useSortable, we need to use a safe ID that won't cause errors
+  const cardId = card?._id || `temp-card-${Date.now()}`;
 
   const {
     setNodeRef,
@@ -47,9 +54,9 @@ const TaskCard = ({ allColumns, columnId, card }) => {
     isDragging,
     isSorting,
   } = useSortable({
-    id: card._id,
+    id: cardId,
     data: {
-      card,
+      card: card || {},
       type: 'Task',
     },
     transition: {
@@ -68,20 +75,26 @@ const TaskCard = ({ allColumns, columnId, card }) => {
     opacity: isSorting ? '30%' : '100%',
   };
 
-  const { t } = useTranslation();
-  const dispatch = useDispatch();
-
   const handleClick = () => {
     setShowFullText(!showFullText);
   };
 
   const deleteOneCard = cardId => {
-    dispatch(deleteCard({ cardId, columnId }));
+    if (cardId) {
+      dispatch(deleteCard({ cardId, columnId }));
+    }
   };
 
   const moveCardToAnotherColumn = newColumn => {
-    dispatch(moveCard({ cardId: card._id, newColumn, oldColumn: columnId }));
+    if (card?._id) {
+      dispatch(moveCard({ cardId: card._id, newColumn, oldColumn: columnId }));
+    }
   };
+
+  // Guard clause if card is undefined or null - AFTER all hooks have been called
+  if (!card || !card._id) {
+    return null;
+  }
 
   if (isDragging) {
     return (

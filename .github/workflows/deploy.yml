@@ -1,25 +1,25 @@
-name: Build and deploy to GitHub Pages
+name: Deploy React App to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout 🛎️
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install, lint, build 🔧
-        run: |
-          npm install
-          npm run lint:js || true
-          npm run build
+      - name: Install dependencies
+        run: npm install
 
-      - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@v4.4.0
-        with:
-          branch: gh-pages
-          folder: build
+      - name: Build project
+        run: npm run build
 
+      - name: Deploy to GitHub Pages
+        run: npm run deploy
+        env:
+          CI: false
