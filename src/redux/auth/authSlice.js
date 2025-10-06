@@ -124,6 +124,10 @@ export const authSlice = createSlice({
       .addCase(editUserAvatar.rejected, handleRejected)
       .addCase(editUserInfo.rejected, handleRejected)
       .addCase(refreshUser.rejected, (state, { payload }) => {
+        state.user = null;
+        state.token = null;
+        state.refreshToken = null;
+        state.isLoggedIn = false;
         state.isRefreshing = false;
         state.isLoading = false;
         state.error = payload;

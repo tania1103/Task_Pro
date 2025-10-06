@@ -45,6 +45,11 @@ const onRefreshed = (newToken) => {
   refreshSubscribers = [];
 };
 
+// Funcție pentru a eșua toate requesturile în așteptare
+const onRefreshFailed = (error) => {
+  refreshSubscribers = [];
+};
+
 // Funcție pentru a adăuga noi callback-uri
 const addSubscriber = (callback) => {
   refreshSubscribers.push(callback);
@@ -149,6 +154,7 @@ axiosInstance.interceptors.response.use(
           console.error('Detalii răspuns:', refreshError.response.data);
         }
         isRefreshing = false;
+        onRefreshFailed(refreshError);
 
         // Curățăm tokenurile locale doar în caz de erori de autorizare
         // Alte erori (rețea, timeout) nu ar trebui să ducă la deconectare
@@ -156,6 +162,7 @@ axiosInstance.interceptors.response.use(
           console.warn('🔑 Șterg token-urile din cauza unei erori de autorizare');
           localStorage.removeItem('accessToken');
           localStorage.removeItem('refreshToken');
+          axiosInstance.defaults.headers.common.Authorization = '';
 
           // Redirecționăm la login dacă este necesar
           // window.location.href = '/auth/login';
