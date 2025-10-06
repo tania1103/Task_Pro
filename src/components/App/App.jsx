@@ -38,7 +38,7 @@ const App = () => {
 
         if (action.type === 'auth/refreshUser/fulfilled') {
           dispatch(getTheme());
-          dispatch(getAllBoards()); // <== trebuie să se vadă în consolă!
+          dispatch(getAllBoards());
         } else {
           console.warn('❌ Eșec la refreshUser');
         }
@@ -47,14 +47,6 @@ const App = () => {
       console.warn('⚠️ Lipsesc tokenurile. Nu s-a apelat refreshUser.');
     }
   }, [dispatch]);
-
-  // fallback în caz că utilizatorul este deja logat
-  useEffect(() => {
-    if (isLoggedIn) {
-      dispatch(getTheme());
-      dispatch(getAllBoards());
-    }
-  }, [dispatch, isLoggedIn]);
 
   if (isRefreshing) return <Loader strokeColor="#fff" />;
 

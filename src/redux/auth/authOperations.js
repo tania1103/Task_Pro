@@ -89,6 +89,7 @@ export const logOut = createAsyncThunk('auth/logout', async (_, thunkAPI) => {
       refreshToken,
     });
 
+    localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     unsetAuthorizationHeader();
   } catch (error) {
@@ -97,31 +98,35 @@ export const logOut = createAsyncThunk('auth/logout', async (_, thunkAPI) => {
   }
 });
 
-// 🔄 REFRESH USER
+// 🔄 REFRESH USER - Gets current user info (token refresh handled by axios interceptor)
 export const refreshUser = createAsyncThunk(
-  'auth/profile',
+  'auth/refreshUser',
   async (_, thunkAPI) => {
     try {
-      const refreshToken = localStorage.getItem('refreshToken');
-      if (!refreshToken) throw new Error('No refresh token available');
+      const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) {
+        throw new Error('No access token available');
+      }
 
-      const { data } = await axiosInstance.post(ENDPOINTS.auth.refreshToken, {
-        refreshToken,
-      });
+      // Set the authorization header for this request
+      setAuthorizationHeader(accessToken);
 
-      const { token, user } = data;
-      if (!token) throw new Error('No token returned from refresh');
+      // Get current user info - if token is invalid, interceptor will refresh it
+      const { data } = await axiosInstance.get(ENDPOINTS.auth.me);
 
-      setAuthorizationHeader(token);
-      localStorage.setItem('accessToken', token);
+      // Handle different response structures
+      const user = data.user || data;
 
       return {
         ...user,
-        tokenAccess: token,
-        refreshToken,
+        tokenAccess: accessToken,
+        refreshToken: localStorage.getItem('refreshToken'),
       };
     } catch (error) {
-      console.error('Token refresh failed:', error);
+      console.error('Get user info failed:', error);
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      unsetAuthorizationHeader();
       return thunkAPI.rejectWithValue(error.message);
     }
   }
