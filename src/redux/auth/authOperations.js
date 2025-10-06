@@ -114,8 +114,11 @@ export const refreshUser = createAsyncThunk(
       // Get current user info - if token is invalid, interceptor will refresh it
       const { data } = await axiosInstance.get(ENDPOINTS.auth.me);
 
+      // Handle different response structures
+      const user = data.user || data;
+
       return {
-        ...data.user,
+        ...user,
         tokenAccess: accessToken,
         refreshToken: localStorage.getItem('refreshToken'),
       };
