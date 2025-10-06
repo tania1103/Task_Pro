@@ -3,8 +3,8 @@ import * as yup from 'yup';
 const registerSchema = yup.object().shape({
   name: yup
     .string()
-    .min(3, 'Name must be at least 3 characters')
-    .max(25, 'Maximum name length is 25 symbols')
+    .min(2, 'Name must be at least 2 characters')
+    .max(32, 'Maximum name length is 32 characters')
     .required('Name is required'),
   email: yup
     .string()
@@ -12,8 +12,9 @@ const registerSchema = yup.object().shape({
     .required('Email is required'),
   password: yup
     .string()
-    .min(6, 'Password must be at least 6 characters')
-    .max(24, 'Maximum password length is 24 symbols')
+    .min(8, 'Password must be at least 8 characters')
+    .max(64, 'Maximum password length is 64 characters')
+    .matches(/^\S+$/, 'Password cannot contain spaces')
     .required('Password is required'),
 });
 
